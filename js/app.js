@@ -390,34 +390,87 @@ var title = document.getElementById('page-title');
   /* L'application s'installe via le menu du navigateur (le manifesto reste
      declare, le navigateur propose alors l'installation). */
 
+  /* Barre flottante au-dessus de la navigation : elle annonce la nouvelle
+     version et ne recharge qu'une fois le bouton accepte. */
   function mountUpdateBar(onReload) {
-    if (document.getElementById('pwa-prompt')) return;
-    var box = document.createElement('div');
-    box.id = 'pwa-prompt';
+    var box = document.getElementById('pwa-prompt');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'pwa-prompt';
+      box.setAttribute('role', 'status');
+      box.setAttribute('aria-live', 'polite');
+      box.className =
+        'flex items-center gap-2 p-3 rounded-xl bg-primary text-on-primary shadow-xl';
+      box.innerHTML =
+        '<span class="material-symbols-outlined text-secondary-fixed text-[20px] shrink-0">published_with_changes</span>' +
+        '<span class="font-body-sm text-[12px] flex-1 min-w-0">Nouvelle version disponible</span>' +
+        '<button type="button" data-act="reload" class="shrink-0 px-3 h-8 rounded-md bg-secondary-container text-on-secondary-container font-label-md text-label-md">Mettre \u00e0 jour</button>' +
+        '<button type="button" data-act="later" aria-label="Plus tard" class="shrink-0 w-8 h-8 flex items-center justify-center text-on-primary/70 active:scale-90"><span class="material-symbols-outlined text-[18px]">close</span></button>';
+      document.body.appendChild(box);
+    }
     box.setAttribute('data-open', 'true');
-    box.className =
-      'flex items-center gap-2 p-3 rounded-xl bg-primary text-on-primary shadow-xl';
-    box.innerHTML =
-      '<span class="material-symbols-outlined text-secondary-fixed text-[20px] shrink-0">published_with_changes</span>' +
-      '<span class="font-body-sm text-[12px] flex-1 min-w-0">Mise \u00e0 jour disponible</span>' +
-      '<button type="button" class="shrink-0 px-3 h-8 rounded-md bg-secondary-container text-on-secondary-container font-label-md text-label-md">Actualiser</button>';
-    box.querySelector('button').addEventListener('click', onReload);
-    document.body.appendChild(box);
+
+    var btn = box.querySelector('[data-act="reload"]');
+    btn.disabled = false;
+    btn.textContent = 'Mettre \u00e0 jour';
+    btn.onclick = function () {
+      btn.disabled = true;
+      btn.textContent = 'Mise \u00e0 jour\u2026';
+      onReload();
+    };
+    box.querySelector('[data-act="later"]').onclick = function () {
+      barRefusee = true;
+      box.setAttribute('data-open', 'false');
+    };
   }
 
   /* ---------------------------------------------------- service worker boot */
   var swReg = null;
+  var swEnAttente = null;    // nouveau worker installe, pas encore aux commandes
+  var barRefusee = false;    // "Plus tard" clique sur cette page
+  var dernierControle = 0;
 
-  /* Interroge le serveur : si une version plus recente du shell existe,
-     l'ecouteur "updatefound" deja installe plus haut la libere et recharge.
+  /* Le nouveau worker reste en attente jusqu'au prochain chargement : on le
+     libere explicitement, puis on recharge une seule fois, quand il pilote
+     reellement la page (sinon on resservirait l'ancien shell). */
+  function appliquerMiseAJour() {
+    var waiting = swEnAttente || (swReg && swReg.waiting);
+    if (!waiting) {
+      location.reload();
+      return;
+    }
+    var fait = false;
+    var recharger = function () {
+      if (fait) return;
+      fait = true;
+      location.reload();
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', recharger);
+    waiting.postMessage('skip-waiting');
+    setTimeout(recharger, 1500);
+  }
+
+  function proposer(reg, worker, force) {
+    swEnAttente = worker || (reg && reg.waiting) || null;
+    if (!swEnAttente) return;
+    if (barRefusee && !force) return;
+    barRefusee = false;
+    mountUpdateBar(appliquerMiseAJour);
+  }
+
+  /* Interroge le serveur : si une version plus recente du shell existe, la
+     barre de mise a jour s'affiche. `force === false` respecte un "Plus tard"
+     deja clique (controles automatiques) ; un appel manuel la reaffiche.
      Resout toujours, jamais rejete : un tirage sans reseau doit se terminer
      proprement. */
-  KD.checkUpdate = function () {
+  KD.checkUpdate = function (force) {
     if (!swReg || typeof swReg.update !== 'function') return Promise.resolve(false);
     return swReg.update().then(function () {
       var worker = swReg.waiting ||
         (swReg.installing && swReg.installing.state === 'installed' ? swReg.installing : null);
-      if (worker && navigator.serviceWorker.controller) proposer(swReg, worker);
+      if (worker && navigator.serviceWorker.controller) {
+        proposer(swReg, worker, force !== false);
+      }
       return !!worker;
     })['catch'](function (err) {
       console.warn('[KD] verification de mise a jour impossible :', err && err.message);
@@ -437,30 +490,19 @@ var title = document.getElementById('page-title');
          doublait le rechargement demande par l'utilisateur. */
     });
 
-    function proposer(reg, worker) {
-      mountUpdateBar(function () {
-        /* Sans skipWaiting le nouveau worker reste en attente et le
-           rechargement resservirait l'ancien shell : on le libere
-           d'abord, puis on recharge une seule fois, une fois qu'il
-           pilote vraiment la page. */
-        var waiting = reg.waiting || worker;
-        if (!waiting) {
-          location.reload();
-          return;
-        }
-        var fait = false;
-        var recharger = function () {
-          if (fait) return;
-          fait = true;
-          location.reload();
-        };
-        navigator.serviceWorker.addEventListener('controllerchange', recharger);
-        waiting.postMessage('skip-waiting');
-        setTimeout(recharger, 1500);
-      });
+    /* Controle automatique espace : ouverture de l'app, retour au premier
+       plan, focus de la fenetre et retour du reseau. */
+    function controleAuto() {
+      var t = Date.now();
+      if (t - dernierControle < 60000) return;
+      dernierControle = t;
+      KD.checkUpdate(false);
     }
 
-    navigator.serviceWorker.register('sw.js').then(
+    /* updateViaCache: 'none' force la revalidation du script sw.js aupres du
+       serveur : indispensable derriere le cache HTTP de GitHub Pages, sinon
+       une nouvelle version peut rester invisible plusieurs minutes. */
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(
       function (reg) {
         swReg = reg;
         reg.addEventListener('updatefound', function () {
@@ -474,8 +516,23 @@ var title = document.getElementById('page-title');
         });
         /* "updatefound" peut s'etre declenche avant que cette promesse soit
            resolue : un worker deja en attente passerait alors inaperçu et
-           l'utilisateur resterait bloque sur l'ancien shell. */
+           l'utilisateur resterait bloque sur l'ancien shell. C'est aussi le
+           cas quand la page est rechargee alors qu'une mise a jour attend
+           deja : la demande s'affiche des l'ouverture. */
         if (reg.waiting && navigator.serviceWorker.controller) proposer(reg, reg.waiting);
+
+        /* Verification immediate apres l'enregistrement : un simple
+           rechargement suffit a voir arriver la demande de mise a jour. */
+        setTimeout(function () {
+          dernierControle = Date.now();
+          KD.checkUpdate(false);
+        }, 1200);
+
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible') controleAuto();
+        });
+        window.addEventListener('focus', controleAuto);
+        window.addEventListener('online', controleAuto);
       },
       function (err) { console.warn('[KD] service worker non enregistr\u00e9 :', err); }
     );

@@ -81,7 +81,18 @@
         const updateBtn = document.getElementById('update-btn');
         if (updateBtn) {
           updateBtn.addEventListener('click', () => {
-            KD.toast('Version 2.4.0 Luxe : Votre application est à jour');
+            if (typeof KD.checkUpdate !== 'function') {
+              KD.toast('Mise à jour indisponible sur cet appareil', 'cloud_off');
+              return;
+            }
+            KD.toast('Recherche de mise à jour…', 'progress_activity');
+            KD.checkUpdate().then((disponible) => {
+              /* Si une version attend, KD.checkUpdate a déjà affiché la
+                 barre "Nouvelle version disponible" : inutile d'en rajouter. */
+              if (!disponible) KD.toast('Votre application est à jour', 'check_circle');
+            }).catch(() => {
+              KD.toast('Vérification impossible hors connexion', 'cloud_off');
+            });
           });
         }
 
