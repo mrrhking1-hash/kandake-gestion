@@ -226,6 +226,53 @@
     try { window.localStorage.removeItem(PRODUCTS_KEY); } catch (e) { /* ignore */ }
   };
 
+  /* ---------------------------------------------------------------- ventes
+     Chaque encaissement laisse une trace locale (aucun serveur) : les cartes
+     de synthese de la caisse peuvent alors afficher les montants reellement
+     encaisses dans la journee, rubrique par rubrique. Le journal est borne
+     pour ne jamais saturer le stockage du telephone. */
+  var SALES_KEY = 'kandake.sales';
+  var SALES_MAX = 300;
+
+  function jourLocal(date) {
+    var d = date || new Date();
+    return d.getFullYear() + '-' +
+      ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+      ('0' + d.getDate()).slice(-2);
+  }
+
+  KD.getSales = function () {
+    try {
+      var list = JSON.parse(window.localStorage.getItem(SALES_KEY) || '[]');
+      return Array.isArray(list) ? list : [];
+    } catch (e) { return []; }
+  };
+
+  /* vente : { totalUsd, currency, rubriques: { Beauty, Art }, lignes } */
+  KD.addSale = function (vente) {
+    var list = KD.getSales();
+    var entree = {};
+    Object.keys(vente || {}).forEach(function (k) { entree[k] = vente[k]; });
+    if (!entree.date) entree.date = jourLocal();
+    list.unshift(entree);
+    if (list.length > SALES_MAX) list.length = SALES_MAX;
+    try {
+      window.localStorage.setItem(SALES_KEY, JSON.stringify(list));
+    } catch (e) { return false; }
+    document.dispatchEvent(new CustomEvent('kd:sales'));
+    return true;
+  };
+
+  /* Montant encaisse aujourd'hui pour une rubrique, en dollars de reference. */
+  KD.salesToday = function (rubrique) {
+    var jour = jourLocal();
+    return KD.getSales().reduce(function (somme, vente) {
+      if (!vente || vente.date !== jour || !vente.rubriques) return somme;
+      var n = Number(vente.rubriques[rubrique] || 0);
+      return somme + (isFinite(n) ? n : 0);
+    }, 0);
+  };
+
   /* ------------------------------------------------------- devises & taux
      Le catalogue, les stocks et le solde de trésorerie sont en dollars (USD).
      Le taux est modifiable dans les réglages et mémorisé sur l'appareil ; il

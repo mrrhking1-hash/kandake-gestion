@@ -3,6 +3,10 @@
   'use strict';
   KD.views = KD.views || {};
 
+  /* Les ecouteurs poses sur document vivent au dela de la vue : on les retire
+     a la sortie pour ne pas empiler les mises a jour de synthese. */
+  var nettoyerSynthese = null;
+
   /* Le fond doit etre deverrouille meme si l'onglet change alors que le
      panier est ouvert, sinon l'application reste figee. */
   function delogerFond(y) {
@@ -22,6 +26,7 @@ if (!y) return;
   KD.views.caisse = {
     title: 'Caisse',
     unmount: function () {
+      if (nettoyerSynthese) { nettoyerSynthese(); nettoyerSynthese = null; }
       delogerFond(document.body.classList.contains('kd-body-frozen') ? -(parseInt(document.body.style.top, 10) || 0) : 0);
     },
     mount: function () {
@@ -63,6 +68,7 @@ if (!y) return;
         btn.addEventListener('click', function () {
           shopActif = btn.getAttribute('data-shop');
           colorerSel(shopBtns, 'data-shop', shopActif);
+          majSynthese();
           sauverEtat();
         });
       });
@@ -140,6 +146,59 @@ if (!y) return;
         });
       }
 
+      /* -------------------------------------------- synthese de la rubrique
+         Trois montants suivent le selecteur Beauty / Art : articles en stock,
+         valeur du stock et ventes encaissees aujourd'hui. */
+      var sumArticles = document.getElementById('sum-articles');
+      var sumValeur = document.getElementById('sum-valeur');
+      var sumVentes = document.getElementById('sum-ventes');
+
+      function rubriqueDe(p) {
+        return p && p.cat === 'Art' ? 'Art' : 'Beauty';
+      }
+
+      /* Trois cartes tiennent sur une ligne : les gros montants sont abreges
+         (12,4 k) plutot que tronques par l'ellipse des cartes etroites. */
+      function montant(n) {
+        var v = KD.convert(n, currency) || 0;
+        var signe = v < 0 ? '-' : '';
+        v = Math.abs(v);
+        var txt;
+        if (v >= 1000000) txt = (v / 1000000).toFixed(1).replace('.', ',') + ' M';
+        else if (v >= 10000) txt = Math.round(v / 1000) + ' k';
+        else txt = Math.round(v).toLocaleString('fr-FR');
+        return signe + (currency === 'CDF' ? txt + ' FC' : '$' + txt);
+      }
+
+      function majSynthese() {
+        /* Le selecteur porte 'beauty' / 'art' en minuscules, les produits
+           'Beauty' / 'Art' : on normalise avant de comparer. */
+        var rubrique = shopActif === 'art' ? 'Art' : 'Beauty';
+        var articles = 0;
+        var valeur = 0;
+        KD.getProducts().forEach(function (p) {
+          if (rubriqueDe(p) !== rubrique) return;
+          var stock = Number(p.stock) || 0;
+          var prix = Number(p.price) || 0;
+          articles += stock;
+          valeur += stock * prix;
+        });
+        var ventes = typeof KD.salesToday === 'function' ? KD.salesToday(rubrique) : 0;
+        if (sumArticles) sumArticles.textContent = String(articles);
+        if (sumValeur) sumValeur.textContent = montant(valeur);
+        if (sumVentes) sumVentes.textContent = montant(ventes);
+      }
+
+      /* Le stock peut changer depuis l'onglet Stocks, une vente d'ici : la
+         synthese se remet a jour sans recharger la vue. */
+      function rafraichirSynthese() { majSynthese(); }
+      document.addEventListener('kd:products', rafraichirSynthese);
+      document.addEventListener('kd:sales', rafraichirSynthese);
+      nettoyerSynthese = function () {
+        document.removeEventListener('kd:products', rafraichirSynthese);
+        document.removeEventListener('kd:sales', rafraichirSynthese);
+      };
+
       function money(n) {
         return KD.money(n, currency);
       }
@@ -212,7 +271,7 @@ if (!y) return;
       function add(pid, name, price) {
         var line = cart.filter(function (l) { return l.pid === pid; })[0];
         if (line) line.qty += 1;
-        else cart.push({ pid: pid, name: name, price: price, qty: 1 });
+        else cart.push({ pid: pid, name: name, price: price, qty: 1, cat: rubriqueDe(KD.getProduct(pid)) });
         renderCart();
       }
 
@@ -284,19 +343,39 @@ if (!y) return;
           currency = btn.getAttribute('data-cur');
           colorerCur(currency);
           renderCart();
+          majSynthese();
         });
       });
 
       checkout.addEventListener('click', function () {
         if (!cart.length) return;
         var n = count();
-        var amount = money(total()) + (currency === 'CDF' ? ' ($' + total().toLocaleString('fr-FR') + ')' : '');
+        var montantUsd = total();
+        var amount = money(montantUsd) + (currency === 'CDF' ? ' ($' + montantUsd.toLocaleString('fr-FR') + ')' : '');
+
+        /* Journal local : la carte "Ventes jour" compte tous les
+           encaissements de la rubrique, pas seulement cette session. */
+        var parRubrique = { Beauty: 0, Art: 0 };
+        cart.forEach(function (l) {
+          var rub = (l.cat === 'Art' || rubriqueDe(KD.getProduct(l.pid)) === 'Art') ? 'Art' : 'Beauty';
+          parRubrique[rub] += l.price * l.qty;
+        });
+        if (typeof KD.addSale === 'function') {
+          KD.addSale({
+            totalUsd: montantUsd,
+            currency: currency,
+            rubriques: parRubrique,
+            lignes: n
+          });
+        }
+
         if (typeof KD.toast === 'function') {
           KD.toast(n + (n > 1 ? ' articles encaissés' : ' article encaissé') + ' · ' + amount);
         }
         cart = [];
         renderCart();
         setDrawer(false);
+        majSynthese();
       });
 
       /* Reprise apres rechargement : la caisse retrouve le rayon, l'operation,
@@ -333,6 +412,7 @@ if (!y) return;
       }
 
       renderCart();
+      majSynthese();
     }
   };
 })();
