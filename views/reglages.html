@@ -1,0 +1,280 @@
+<main class="flex flex-col relative w-full pt-header pb-nav bg-surface min-h-dvh">
+<div class="flex flex-col w-full">
+<!-- Status & Profile Card -->
+<div class="px-margin pt-space-sm pb-space-md">
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm relative overflow-hidden">
+<div class="absolute -right-10 -top-10 w-36 h-36 rounded-full bg-secondary-container/15 blur-2xl pointer-events-none"></div>
+<div class="flex items-start gap-space-md relative z-10">
+<div class="relative shrink-0">
+<div class="w-16 h-16 rounded-full overflow-hidden shadow-md">
+<img class="w-full h-full object-cover" data-alt="High-fashion portrait of an elegant Senegalese female luxury boutique director with glowing radiant skin, golden subtle geometric earrings, wearing an artisanal structured black couture blazer against an ivory ambient studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsR2Dq0HcA2G4UGGnAvNYd3zm0vL6kxIQYh0q4M0aIHfVav_wDRq4VadXPqa8m2r4U0a9-C6v07ekh01lufN1ZaDVfzJMdD3nbQUJ0SwGBtNgcwy1bmZ2HHPLhV824Sad1r5lAcNs3w9MXgMPJADqwC1XAiPpZ7CiuluTXVisMxLJAWVBiGGBs7cc-a4ILuqvhqVrji8spixqIEww5kDoVOqI6-pIuBRCyOSwg4k0C1vg7PtOhHuC5Lg">
+</div>
+<span class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-secondary-container border-2 border-surface-container-lowest flex items-center justify-center shadow-xs">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center gap-space-xs flex-wrap">
+<h2 class="font-headline-md text-headline-sm text-primary tracking-tight truncate">Aïssatou Ba</h2>
+<span class="bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm px-2 py-0.5 rounded-full uppercase tracking-wider inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+              Accès Royal VIP
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Administratrice Propriétaire</p>
+<div class="flex items-center gap-1.5 mt-2 bg-surface-container-low px-2.5 py-1 rounded-full w-fit">
+<span class="material-symbols-outlined text-secondary text-[15px]">cloud_done</span>
+<span class="font-label-sm text-[11px] text-on-surface font-medium truncate">Boutique &amp; PWA Synchronisées</span>
+</div>
+</div>
+</div>
+<!-- Quick Metrics Strip -->
+<div class="grid grid-cols-3 gap-2 mt-4 pt-3 bg-surface-container-low rounded-lg p-2.5">
+<div class="text-center">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Version</span>
+<p class="font-data-mono text-body-sm font-semibold text-primary">v2.4.0 Édition</p>
+</div>
+<div class="text-center">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Réseau</span>
+<p class="font-data-mono text-body-sm font-semibold text-secondary flex items-center justify-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+            En Ligne
+          </p>
+</div>
+<div class="text-center">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Sécurité</span>
+<p class="font-data-mono text-body-sm font-semibold text-primary">Face ID actif</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Settings Categories Accordion/List -->
+<div class="px-margin flex flex-col gap-space-md pb-space-lg">
+<!-- Section 1: Boutique & Identité -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[19px]">storefront</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg font-bold text-primary">Boutique &amp; Identité</h3>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Signature légale &amp; univers d'exception</p>
+</div>
+</div>
+<button aria-label="Modifier établissement" class="w-8 h-8 flex items-center justify-center text-secondary active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">edit_note</span>
+</button>
+</div>
+<div class="space-y-2.5 mt-2">
+<!-- Item 1: Info Établissement -->
+<div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="min-w-0 pr-2">
+<p class="font-label-sm text-[10px] text-secondary uppercase font-bold tracking-wider">Maison Principale</p>
+<p class="font-body-md text-body-sm font-semibold text-primary truncate">Kandake Maison &amp; Beauté</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant truncate">RCCM DK-2023-B-8942 • Almadies, Dakar</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">verified</span>
+</div>
+<!-- Item 2: Taux de change (modifiable) -->
+<div class="p-space-sm bg-surface-container-low rounded-lg" id="fx-card">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-7 h-7 rounded-full bg-secondary-fixed/50 flex items-center justify-center text-secondary font-bold text-xs">
+              $
+            </div>
+<div class="min-w-0">
+<p class="font-body-md text-body-sm font-semibold text-primary truncate">Taux de change</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Utilisé pour encaisser en francs congolais</p>
+</div>
+</div>
+<button class="shrink-0 font-label-sm text-[11px] text-secondary font-semibold underline underline-offset-2" id="fx-reset" type="button">Réinitialiser</button>
+</div>
+<div class="flex items-center gap-2">
+<label class="shrink-0 font-body-sm text-[12px] text-on-surface-variant" for="fx-input">1 $ =</label>
+<div class="relative flex-1">
+<input class="w-full bg-surface-container-lowest font-data-mono text-body-sm font-semibold text-primary py-2 pl-3 pr-16 rounded-lg shadow-xs focus:outline-none focus:ring-1 focus:ring-secondary" id="fx-input" type="text" inputmode="numeric" autocomplete="off" placeholder="2300">
+<span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-label-sm text-[11px] text-on-surface-variant">FC</span>
+</div>
+</div>
+<p class="font-body-sm text-[11px] text-error mt-1.5 hidden" id="fx-error">Taux invalide : entre 1 et 100 000.</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-1.5" id="fx-rate"></p>
+</div>
+<!-- Item 3: Univers d'Artisanat -->
+<div class="p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center justify-between mb-2">
+<p class="font-body-md text-body-sm font-semibold text-primary">Rayons &amp; Départements actifs</p>
+<span class="font-label-sm text-[11px] text-secondary font-semibold">2 univers</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div class="flex items-center gap-2 p-2 bg-surface-container-lowest rounded-md">
+<span class="material-symbols-outlined text-secondary text-[18px]">face_retouching_natural</span>
+<span class="font-body-sm text-[12px] font-medium text-primary truncate">Beauty</span>
+</div>
+<div class="flex items-center gap-2 p-2 bg-surface-container-lowest rounded-md">
+<span class="material-symbols-outlined text-secondary text-[18px]">palette</span>
+<span class="font-body-sm text-[12px] font-medium text-primary truncate">Art</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 2: Point de Vente & Caisse -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="flex items-center gap-2.5 pb-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[19px]">point_of_sale</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg font-bold text-primary">Point de Vente &amp; Caisse</h3>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Reçus clients, taxes et caisse journalière</p>
+</div>
+</div>
+<div class="space-y-2 mt-2">
+<!-- WhatsApp Auto Receipt Toggle -->
+<div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-2.5 pr-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">chat</span>
+<div>
+<p class="font-body-md text-body-sm font-semibold text-primary">Reçu WhatsApp automatique</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Envoi instantané d'une facture ornée au client</p>
+</div>
+</div>
+<button aria-checked="true" class="toggle-btn w-11 h-6 rounded-full bg-primary p-0.5 flex items-center justify-end transition-colors duration-200 cursor-pointer" role="switch" type="button">
+<span class="w-5 h-5 rounded-full bg-surface-container-lowest shadow-sm"></span>
+</button>
+</div>
+
+<!-- Auto Cash Closing -->
+<div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-2.5 pr-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">event_repeat</span>
+<div>
+<!-- Section 3: Utilisateurs & Droits -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[19px]">group</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg font-bold text-primary">Équipe &amp; Autorisations</h3>
+<p class="font-body-sm text-[11px] text-on-surface-variant" id="team-count">Chargement…</p>
+</div>
+</div>
+<button class="bg-surface-container text-primary font-label-sm text-[11px] px-2.5 py-1.5 rounded-md flex items-center gap-1 font-semibold active:scale-95 transition-transform" id="team-add">
+<span class="material-symbols-outlined text-[14px]">person_add</span>
+          Ajouter
+        </button>
+</div>
+<!-- Liste generee par js/views/reglages.js : nom, role et mot de passe par personne. -->
+<div class="space-y-2 mt-2" id="team-list"></div>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-3 flex items-start gap-1.5">
+<span class="material-symbols-outlined text-[13px] shrink-0">info</span>
+<span>Chaque personne se connecte avec son nom ou son numéro, et son propre mot de passe.</span>
+</p>
+</div>
+
+<!-- Section 4: PWA & Mode Hors-ligne -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[19px]">offline_pin</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg font-bold text-primary">PWA &amp; Haute Disponibilité</h3>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Opérationnel même sans connexion internet</p>
+</div>
+</div>
+</div>
+<div class="space-y-2.5 mt-2">
+<!-- Offline Toggle -->
+<div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="pr-2">
+<p class="font-body-md text-body-sm font-semibold text-primary">Forcer le Mode Déconnecté</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Stockage local temporaire des transactions</p>
+</div>
+<button aria-checked="false" class="toggle-btn w-11 h-6 rounded-full bg-surface-variant p-0.5 flex items-center justify-start transition-colors duration-200 cursor-pointer" id="offline-switch" role="switch" type="button">
+<span class="w-5 h-5 rounded-full bg-surface-container-lowest shadow-sm"></span>
+</button>
+</div>
+<!-- Cache Memory Status -->
+<div class="p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center justify-between text-body-sm">
+<span class="font-body-md text-body-sm font-semibold text-primary">Cache catalogue local</span>
+<span class="font-data-mono text-body-sm text-secondary font-bold">100% synchronisé</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full mt-2 overflow-hidden">
+<div class="bg-secondary h-full rounded-full w-full"></div>
+</div>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-1.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-secondary">check_circle</span>
+            142 articles et leurs photographies HD préchargés
+          </p>
+</div>
+<!-- App Update Button -->
+<button class="w-full bg-surface-container hover:bg-surface-variant text-primary font-label-lg text-body-sm py-2.5 rounded-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-all" id="update-btn">
+<span class="material-symbols-outlined text-[18px] text-secondary">published_with_changes</span>
+<span class="">Vérifier les mises à jour (v2.4.0)</span>
+</button>
+</div>
+</div>
+<!-- Section 5: Sécurité & Sauvegarde Cloud -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="flex items-center gap-2.5 pb-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[19px]">security</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-lg font-bold text-primary">Sécurité &amp; Sauvegarde</h3>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Chiffrement de bout en bout des ventes</p>
+</div>
+</div>
+<div class="space-y-2 mt-2">
+<!-- Biometric Auth -->
+<div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-2.5 pr-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">fingerprint</span>
+<div>
+<p class="font-body-md text-body-sm font-semibold text-primary">Authentification biométrique</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Face ID / Empreinte requis au déverrouillage</p>
+</div>
+</div>
+<button aria-checked="true" class="toggle-btn w-11 h-6 rounded-full bg-primary p-0.5 flex items-center justify-end transition-colors duration-200 cursor-pointer" role="switch" type="button">
+<span class="w-5 h-5 rounded-full bg-surface-container-lowest shadow-sm"></span>
+</button>
+</div>
+<!-- Cloud Backup Status -->
+<div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[20px]">cloud_sync</span>
+<div>
+<p class="font-body-md text-body-sm font-semibold text-primary">Sauvegarde Cloud chiffrée</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Dernier instantané : Il y a 6 min</p>
+</div>
+</div>
+<button class="bg-surface-container-lowest text-primary px-2.5 py-1 rounded text-[11px] font-label-sm font-bold shadow-xs active:scale-95 transition-transform">
+            Forcer
+          </button>
+</div>
+</div>
+</div>
+<!-- Section 6: Déconnexion Sécurisée -->
+<div class="pt-space-xs">
+<button class="w-full h-12 rounded-lg bg-surface-container-lowest text-error font-label-lg text-body-md flex items-center justify-center gap-2 shadow-sm hover:bg-error-container hover:text-on-error-container transition-colors active:scale-[0.98]" id="logout-btn">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span class="">Déconnexion de la session gérante</span>
+</button>
+<p class="text-center font-body-sm text-[11px] text-on-surface-variant mt-2">
+        Kandake Maison &amp; Beauté • Dakar • Système Haute Couture
+      </p>
+</div>
+</div>
+<!-- Toast Notification Modal for micro-interactions -->
+<div class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-primary text-on-primary px-4 py-2.5 rounded-lg shadow-xl text-body-sm flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300" id="toast">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+<span id="toast-msg" class="">Paramètre synchronisé</span>
+</div>
+</div>
+</main>

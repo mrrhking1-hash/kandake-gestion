@@ -1,0 +1,75 @@
+<main class="login-shell relative min-h-dvh w-full overflow-x-hidden bg-gradient-to-b from-secondary-container to-secondary-fixed-dim text-primary flex">
+<!-- halos : profondeur dans le jaune de la marque -->
+<div aria-hidden="true" class="absolute -right-20 -top-24 w-64 h-64 rounded-full bg-white/30 blur-3xl pointer-events-none"></div>
+<div aria-hidden="true" class="absolute -left-24 top-1/3 w-56 h-56 rounded-full bg-white/20 blur-3xl pointer-events-none"></div>
+<div aria-hidden="true" class="absolute right-8 -bottom-24 w-52 h-52 rounded-full bg-on-secondary-container/10 blur-3xl pointer-events-none"></div>
+
+<!-- my-auto centre le bloc quand il y a de la place et laisse deborder vers le
+     bas quand le clavier s'ouvre : un justify-center couperait le haut. -->
+<form class="login-scroll relative flex-1 flex w-full max-w-[420px] mx-auto overflow-y-auto overscroll-contain" id="login-form" novalidate>
+<div class="login-stage my-auto w-full">
+<!-- Logo -->
+<div class="flex flex-col items-center text-center gap-3.5 pb-7">
+<div class="relative">
+<div class="absolute -inset-2.5 rounded-[1.4rem] bg-white/45 blur-md"></div>
+<img alt="Kandake" class="relative w-[68px] h-[68px] rounded-[1.1rem] object-cover shadow-[0_10px_24px_-8px_rgba(0,0,0,0.35)] ring-1 ring-black/5"
+src="https://lh3.googleusercontent.com/aida/AEtjO1U3PdHyjtKfhOQUi9M-euQDsm_FtLaCQxzL8HfS-HNM_Zmvmnw7VVy4ZDzJIpWCWPiGOoO_Vev0mtLT7jVWm6Lwlk7JySTkP6rjcM9auG107hE0-G7FgwsvURel9xI9jl0LhlSLRipVLdBJldeD3MHjQpZBm5BS4KZWz9Qlq3eefGsoo0Mp51UKSjIlwsI52j7dqLmXNtNPHtVLPAhzCHxyFYQnEgQGoZ-MSt9akYrBGicctFIk5RX1foKJyUxHBPSVSpubAXmLn_A">
+</div>
+<div>
+<h1 class="font-headline-md text-[25px] leading-none font-bold tracking-tight">Kandake Gestion</h1>
+<p class="text-[11px] text-on-secondary-container/75 mt-2">Maison &amp; Beauté · Almadies, Dakar</p>
+</div>
+</div>
+
+<!-- Un seul bloc blanc, marges egales : les deux lignes y sont regroupees -->
+<div class="login-card rounded-[26px] bg-gradient-to-b from-white to-[#fdf7f2] shadow-[0_22px_44px_-16px_rgba(88,58,0,0.38)] overflow-hidden">
+<div class="px-4">
+<div class="login-row">
+<label class="block text-[10px] uppercase tracking-[0.16em] font-bold text-on-secondary-container mb-0.5" for="login-id">Identifiant</label>
+<div class="flex items-center gap-2.5 h-11">
+<span aria-hidden="true" class="material-symbols-outlined text-[18px] text-black/30 shrink-0">person</span>
+<input aria-label="Identifiant" class="w-full min-w-0 bg-transparent outline-none text-[16px] sm:text-[15px] font-medium text-primary placeholder:text-black/25 placeholder:font-normal" id="login-id" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Nom ou numéro" required>
+</div>
+</div>
+</div>
+
+<div class="border-t border-black/[0.07] px-4">
+<div class="login-row">
+<label class="block text-[10px] uppercase tracking-[0.16em] font-bold text-on-secondary-container mb-0.5" for="login-pass">Mot de passe</label>
+<div class="flex items-center gap-2.5 h-11">
+<span aria-hidden="true" class="material-symbols-outlined text-[18px] text-black/30 shrink-0">lock</span>
+<input aria-label="Mot de passe" class="w-full min-w-0 bg-transparent outline-none text-[16px] sm:text-[15px] font-medium text-primary placeholder:text-black/25 placeholder:font-normal" id="login-pass" type="password" autocomplete="current-password" placeholder="••••" required>
+<button aria-label="Afficher le mot de passe" class="shrink-0 w-9 h-9 -mr-2 rounded-full flex items-center justify-center text-black/35 hover:text-black/60 active:scale-90 transition" id="toggle-pass" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</div>
+</div>
+
+<!-- Message d'erreur, dans le meme bloc. Le separateur suit la marge du
+     message (16px) comme le texte des champs : meme gouttiere partout. -->
+<p class="border-t border-black/[0.07] text-[12px] leading-snug text-error flex items-start gap-1.5 mx-4 my-3 px-3 py-2.5 rounded-xl bg-error-container/70 hidden" id="login-error" role="alert">
+<span aria-hidden="true" class="material-symbols-outlined text-[15px] shrink-0 mt-px">error</span>
+<span id="login-error-text">Identifiant ou mot de passe incorrect.</span>
+</p>
+</div>
+
+<!-- Entrer : rectangle blanc, bords arrondis -->
+<button class="w-full h-[52px] rounded-full bg-white text-primary shadow-[0_14px_28px_-10px_rgba(88,58,0,0.45)] active:scale-[0.98] transition-transform flex items-center justify-center gap-2.5 mt-5" id="login-submit" type="submit">
+<span class="text-label-lg font-bold tracking-wide">Entrer</span>
+<span aria-hidden="true" class="w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+</span>
+</button>
+
+<button class="w-full h-9 mt-1 text-on-secondary-container/80 text-[11px] font-semibold active:scale-[0.98] transition-transform" id="login-cancel" type="button">
+Continuer sans s’identifier
+</button>
+
+<p class="text-[10px] leading-relaxed text-on-secondary-container/60 text-center pt-6">
+Mot de passe oublié&nbsp;? Réinitialisation via<br>
+<span class="font-semibold text-on-secondary-container">Réglages · Équipe &amp; Autorisations</span>
+</p>
+</div>
+</form>
+</main>

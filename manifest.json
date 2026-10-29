@@ -1,0 +1,102 @@
+{
+  "id": ".",
+  "name": "Kandake Gestion - Maison & Beauté",
+  "short_name": "Kandake",
+  "description": "Pilotage de la boutique Kandake Maison & Beauté : caisse, stocks, ventes, finances et équipe, disponible hors connexion.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": ".",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "portrait",
+  "background_color": "#fcf9f8",
+  "theme_color": "#000000",
+  "categories": [
+    "business",
+    "finance",
+    "shopping",
+    "productivity"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/favicon-64.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouvelle vente",
+      "short_name": "Caisse",
+      "description": "Ouvrir le point de vente",
+      "url": "index.html#/caisse",
+      "icons": [
+        {
+          "src": "icons/favicon-64.png",
+          "sizes": "64x64"
+        }
+      ]
+    },
+    {
+      "name": "Stocks",
+      "short_name": "Stocks",
+      "description": "Suivre les niveaux de stock",
+      "url": "index.html#/stocks",
+      "icons": [
+        {
+          "src": "icons/favicon-64.png",
+          "sizes": "64x64"
+        }
+      ]
+    },
+    {
+      "name": "Finances",
+      "short_name": "Finances",
+      "description": "Trésorerie et grand livre",
+      "url": "index.html#/finances",
+      "icons": [
+        {
+          "src": "icons/favicon-64.png",
+          "sizes": "64x64"
+        }
+      ]
+    }
+  ]
+}

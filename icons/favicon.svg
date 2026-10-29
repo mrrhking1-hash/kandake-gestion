@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Kandake">
+<rect width="64" height="64" rx="14" fill="#0a0a0a"/>
+<rect x="3" y="3" width="58" height="58" rx="12" fill="none" stroke="#7a5900" stroke-width="1"/>
+<text x="32" y="43" font-family="Didot,Playfair Display,Georgia,serif" font-size="34"
+      fill="#fdc340" text-anchor="middle">K</text>
+<path d="M32 49.5 34.4 52 32 54.5 29.6 52Z" fill="#fcf9f8"/>
+</svg>

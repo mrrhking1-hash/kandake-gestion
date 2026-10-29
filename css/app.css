@@ -1,0 +1,295 @@
+@layer base {
+  html, body { width: 100vw; margin: 0; padding: 0; }
+  body { overscroll-behavior: none; }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+  main > :first-child { margin-top: 0 !important; }
+  main > :last-child { margin-bottom: 0 !important; }
+}
+::-webkit-scrollbar { display: none; }
+
+/* ---- Feel applicatif : pas de flash bleu au tap, pas de rebond ---- */
+* { -webkit-tap-highlight-color: transparent; }
+button, a { touch-action: manipulation; }
+
+/* ---- Vue "bare" (page de connexion) : plus de chrome applicative ---- */
+body.is-bare header,
+body.is-bare nav { display: none; }
+body.is-bare #view-root { min-height: 100vh; min-height: 100dvh; }
+body.is-bare #route-bar { display: none; }
+
+/* ---- Page de connexion : 9:16 portrait, symetrique sur iOS et Android ----
+   Le contenu est centre avec my-auto : il restecentre quand la place manque,
+   et il deborde vers le bas quand le clavier s'ouvre, au lieu d'etre coupe
+   en haut comme le ferait un justify-content: center. */
+main.login-shell { min-height: 100vh; min-height: 100dvh; }
+.login-stage {
+  /* Une seule marge horizontale pour toute la colonne : le logo, le bloc
+     blanc, le bouton et le pied sont alignes par construction, donc
+     symetriques, sans repetition fragile dans le HTML. */
+  padding-inline: 1rem;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 1.5rem);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+}
+/* Ecran court (iPhone SE, Android d'entree de gamme) : on resserre pour que
+   le bloc tienne sans scroller, en gardant les memes marges a gauche et
+   a droite. */
+@media (max-height: 700px) {
+  .login-stage { padding-top: calc(env(safe-area-inset-top, 0px) + 1rem); }
+  .login-stage .pb-7 { padding-bottom: 1.25rem; }
+  #login-submit { height: 48px; margin-top: 1rem; }
+  .login-stage .pt-6 { padding-top: 1.25rem; }
+}
+/* Paysage court : on repasse en colonne pour ne pas rester en 9:16 force. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .login-stage { padding-top: calc(env(safe-area-inset-top, 0px) + 1rem); }
+}
+
+/* ---- Conteneur de vue : une seule injection, transitions courtes ---- */
+/* dvh et non vh : sur mobile la barre d'URL fait partie de vh, la vue
+   deborderait alors de quelques dizaines de pixels sous la barre du bas. */
+#view-root { min-height: 100vh; min-height: 100dvh; }
+@keyframes kd-view-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#view-root.view-enter { animation: kd-view-in .16s ease-out both; }
+
+/* ---- Barre de progression des transitions ---- */
+#route-bar { transition: opacity .2s ease; opacity: 0; }
+#route-bar[data-show="true"] { opacity: 1; }
+#route-bar[data-show="true"] > div {
+  width: 40%;
+  animation: kd-slide 1s ease-in-out infinite;
+}
+@keyframes kd-slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+/* ---- Bottom navigation: active tab is owned by app.js via aria-current ---- */
+.nav-link { color: #444748; position: relative; }
+.nav-link[aria-current="page"] { color: #000000; font-weight: 700; }
+.nav-link[aria-current="page"]::after {
+  content: '';
+  display: block;
+  width: 6px; height: 6px;
+  margin-top: 3px;
+  border-radius: 9999px;
+  background-color: #7a5900;
+}
+
+/* ---- Network status banner ---- */
+#net-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 90;
+  transform: translateY(-100%);
+  transition: transform .3s ease;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+#net-banner[data-state="offline"] { transform: translateY(0); }
+#net-banner > span {
+  display: block;
+  text-align: center;
+  padding: 6px 12px;
+  font: 700 11px/14px 'Plus Jakarta Sans', system-ui, sans-serif;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  background: #7a5900;
+  color: #fff;
+}
+
+/* ---- Install / update prompt ---- */
+#pwa-prompt {
+  position: fixed;
+  left: 12px; right: 12px;
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  display: none;
+}
+#pwa-prompt[data-open="true"] { display: block; }
+
+/* ---- Page de connexion : details qui font la différence ---- */
+/* Safari/Chrome repeignent les champs auto-completes en jaune : on force
+   le blanc du bloc pour ne pas casser la carte. */
+.login-card input:-webkit-autofill,
+.login-card input:-webkit-autofill:hover,
+.login-card input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #000000;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  caret-color: #000000;
+}
+/* Ligne de saisie active : legere surbrillance, sans changer la taille.
+   Pas de marge verticale ici : le padding de 0.5rem place deja 8px au-dessus
+   et 8px en dessous de chaque champ, ce qui rend les deux lignes symetriques
+   et pose la separator exactement au milieu. */
+.login-row {
+  margin-inline: -0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  transition: background-color .15s ease;
+}
+.login-row:focus-within { background-color: rgba(0, 0, 0, .035); }
+.login-error {
+  animation: kd-shake .3s ease;
+}
+@keyframes kd-shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-5px); }
+  75%      { transform: translateX(5px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-error { animation: none; }
+  .login-row { transition: none; }
+}
+
+/* ---- Feuille de modification (bottom sheet) ---- */
+body.kd-sheet-open { overflow: hidden; }
+/* Une feuille modale occupe le bas de l'ecran : la barre du bas doit
+   disparaitre. Elle est en `fixed` avec un `backdrop-filter`, or WebKit
+   compose ces elements dans un calque superieur : meme avec un z-index
+   moindre elle reste devant la feuille et vole les taps sur ses boutons. */
+body.kd-sheet-open > nav { display: none; }
+/* Safari iOS ignore overflow:hidden sur body : le fond continue de defiler
+   pendant que la feuille est ouverte. On sort donc le body du flux, en
+   memorisant le decalage pour le rendre a la fermeture (sinon la page
+   remonte d'un cran a chaque ouverture). */
+body.kd-sheet-open.kd-body-frozen {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+  overflow: hidden;
+}
+#ed-overlay { animation: kd-fade-in .18s ease both; }
+#ed-panel { animation: kd-sheet-up .24s cubic-bezier(.32, .72, 0, 1) both; }
+/* Le panneau Possede son propre defilement : sur iOS le geste ne doit pas
+   condamner la page derriere, ni faire rebondir le tiroir. */
+#ed-panel { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+#ed-panel form { min-height: 0; }
+#ed-panel [id^="ed-"] { touch-action: manipulation; }
+/* Les boutons restent au-dessus du trait d'accueil du telephone. */
+#ed-panel .sheet-foot { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem); }
+@keyframes kd-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes kd-sheet-up {
+  from { transform: translateY(4%); opacity: .4; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #ed-overlay, #ed-panel { animation: none; }
+}
+
+/* ---- Toast fallback injected by KD.toast() ---- */
+#kd-toast {
+  position: fixed;
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 80;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+#kd-toast[data-open="true"] { opacity: 1; }
+
+/* ---- Utility ---- */
+.scroll-x {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+@keyframes kd-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rise { animation: kd-rise .25s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+/* ---- Actualisation par tirage vers le bas ----
+   Le temoin glisse depuis sous l'entete. Il reste en dessous du header
+   (z-50) pour donner l'impression qu'il en sort. */
+#kd-ptr {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 45;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transform: translateY(-100%);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+#kd-ptr > .material-symbols-outlined {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #fff;
+  color: #7a5900;
+  font-size: 20px;
+  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .35);
+}
+#kd-ptr.kd-ptr-sortie { transition: transform .28s cubic-bezier(.2, .8, .3, 1), opacity .28s ease; }
+#kd-ptr.kd-ptr-actif > .material-symbols-outlined { animation: kd-ptr-spin .9s linear infinite; }
+@keyframes kd-ptr-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  #kd-ptr.kd-ptr-sortie { transition: none; }
+  #kd-ptr.kd-ptr-actif > .material-symbols-outlined { animation: none; }
+}
+
+.sheet-no-scroll{overflow:hidden;-webkit-overflow-scrolling:auto;}
+
+/* ---- Glissement vers la gauche : suppression d'un produit (stocks) ----
+   La carte glisse au doigt et decouvre le bouton Supprimer place derriere.
+   On ne touche que le deplacement horizontal : le defilement vertical de la
+   page reste confie au navigateur (touch-action: pan-y sur la carte). */
+.kd-swipe { position: relative; overflow: hidden; }
+.kd-swipe-card {
+  position: relative;
+  z-index: 1;
+  touch-action: pan-y;
+  will-change: transform;
+}
+.kd-swipe-glisse { transition: transform .22s cubic-bezier(.32, .72, 0, 1); }
+.kd-swipe-act {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kd-swipe-glisse { transition: none; }
+}
+
+/* ---- Confirmation de suppression ---- */
+.kd-dialog {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  width: fit-content;
+  height: fit-content;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: visible;
+}
+.kd-dialog::backdrop { background: rgba(0, 0, 0, .45); animation: kd-fade-in .18s ease both; }
+.kd-dialog[open] > div { animation: kd-sheet-up .22s cubic-bezier(.32, .72, 0, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .kd-dialog::backdrop, .kd-dialog[open] > div { animation: none; }
+}

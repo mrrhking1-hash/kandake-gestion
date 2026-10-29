@@ -1,0 +1,136 @@
+<main class="flex flex-col relative w-full pt-header pb-nav bg-surface min-h-dvh">
+<!-- Barre panier -->
+<div class="fixed left-0 right-0 z-40 bottom-[calc(64px+env(safe-area-inset-bottom,0px))] px-gutter hidden" id="cart-bar">
+<div class="flex items-center gap-3 h-14 px-4 rounded-xl bg-primary text-on-primary shadow-xl">
+<div class="flex flex-col flex-1 min-w-0">
+<span class="font-label-sm text-[10px] text-on-primary-container uppercase tracking-wider" id="bar-count">0 article</span>
+<span class="font-headline-sm text-headline-sm text-on-primary font-bold" id="bar-total">$0</span>
+</div>
+<button class="shrink-0 h-10 px-4 rounded-lg bg-secondary-container text-on-secondary-container font-label-md text-label-md active:scale-95 transition-transform" id="open-cart" type="button">
+Voir le panier
+</button>
+</div>
+</div>
+<div class="flex flex-col w-full px-margin space-y-space-md">
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Point de vente</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Caisse</h2>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success-container text-on-surface shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+<span class="font-label-sm text-[10px]">Caisse 1</span>
+</div>
+</div>
+<!-- Sélecteur Beauty / Art -->
+<div class="flex items-center gap-1 p-0.5 rounded-lg bg-surface-container shadow-sm w-fit">
+<button class="shop-btn px-4 h-9 rounded-md bg-primary text-on-primary font-label-md text-label-md transition-colors" data-shop="beauty" type="button">Beauty</button>
+<button class="shop-btn px-4 h-9 rounded-md bg-surface-container text-on-surface-variant font-label-md text-label-md transition-colors" data-shop="art" type="button">Art</button>
+</div>
+<!-- Pastilles d'opérations -->
+<div class="flex flex-wrap items-center gap-2">
+<button class="op-btn shrink-0 px-3 h-8 rounded-full bg-primary text-on-primary font-label-md text-label-md" data-op="vente" type="button">Vente</button>
+<button class="op-btn shrink-0 px-3 h-8 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md" data-op="entree" type="button">Entrée d'argent</button>
+<button class="op-btn shrink-0 px-3 h-8 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md" data-op="sortie" type="button">Sortie d'argent</button>
+</div>
+<div class="flex items-center gap-2 h-11 px-3 rounded-lg bg-surface-container-low shadow-sm focus-within:bg-surface-container-lowest">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant shrink-0">person</span>
+<input class="w-full bg-transparent outline-none font-body-md text-body-md text-primary placeholder:text-outline-variant" id="client" placeholder="Client (facette ou WhatsApp)" type="text">
+</div>
+<div class="flex items-center gap-2 h-11 px-3 rounded-lg bg-surface-container-low shadow-sm focus-within:bg-surface-container-lowest">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant shrink-0">search</span>
+<input class="w-full bg-transparent outline-none font-body-md text-body-md text-primary placeholder:text-outline-variant" id="pos-search" placeholder="Rechercher au catalogue" type="search">
+</div>
+<div class="flex gap-2 scroll-x -mx-margin px-margin" id="cat-chips">
+<button class="chip shrink-0 px-3 h-8 rounded-full bg-primary text-on-primary font-label-md text-label-md" data-filter="all" type="button">Tous</button>
+<button class="chip shrink-0 px-3 h-8 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md" data-filter="Beauty" type="button">Beauty</button>
+<button class="chip shrink-0 px-3 h-8 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md" data-filter="Art" type="button">Art</button>
+</div>
+</div>
+<!-- Catalogue -->
+<div class="grid grid-cols-2 gap-gutter" id="pos-grid"></div>
+<div class="w-full">
+<h3 class="font-body-sm text-[12px] text-primary font-semibold leading-tight line-clamp-2">Lace Frontal 22" HD</h3>
+<div class="flex items-center justify-between mt-1">
+<span class="font-data-mono text-[13px] text-primary font-bold">420</span>
+<span class="font-label-sm text-[9px] uppercase text-success">text-success</span>
+</div>
+</div>
+</button>
+
+
+
+
+
+
+
+</div>
+<div class="text-center py-2 hidden" id="pos-empty">
+<span class="material-symbols-outlined text-[32px] text-outline-variant">search_off</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Aucun produit au catalogue.</p>
+</div>
+<h3 class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Dernier ticket</h3>
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-md bg-surface-container-highest flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</div>
+<div class="min-w-0">
+<p class="font-body-md text-body-md text-primary font-semibold truncate">#KDK-9934 · Lace Frontal 22"</p>
+<span class="font-body-sm text-[11px] text-on-surface-variant truncate">Il y a 8 min · Vente</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-data-mono text-[13px] text-primary font-bold block">$420</span>
+<span class="font-label-sm text-[10px] text-success font-semibold">Encaissé</span>
+</div>
+</div>
+</div>
+<!-- Panier (drawer) -->
+<div class="fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm hidden flex-col justify-end transition-opacity duration-300" id="cart-drawer">
+<div class="w-full max-h-[85dvh] overscroll-contain bg-surface-container-lowest rounded-t-xl p-space-md pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-2xl flex flex-col gap-space-md">
+<div class="w-10 h-1 bg-surface-variant rounded-full mx-auto"></div>
+<div class="flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Ticket en cours</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Panier</h3>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface active:scale-90" id="close-cart" type="button" aria-label="Fermer le panier">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto space-y-2 min-h-[120px]" id="cart-lines"></div>
+<p class="text-center font-body-sm text-body-sm text-on-surface-variant hidden" id="cart-empty">
+Aucun article sélectionné.
+</p>
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between gap-2">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Règlement</p>
+<div class="flex items-center rounded-lg bg-surface-container p-0.5 shrink-0" id="cur-switch" role="group" aria-label="Devise de la vente">
+<button class="cur-btn px-2.5 h-7 rounded-md bg-primary text-on-primary font-label-sm text-[11px] font-bold" data-cur="USD" type="button" aria-pressed="true">$ USD</button>
+<button class="cur-btn px-2.5 h-7 rounded-md text-on-surface-variant font-label-sm text-[11px] font-bold" data-cur="CDF" type="button" aria-pressed="false">FC</button>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<button class="pay-action-btn w-full h-11 rounded-lg bg-success text-on-primary font-label-md text-label-md active:scale-[0.98] transition-transform" data-action="entree" type="button">Entrée d'argent</button>
+<button class="pay-action-btn w-full h-11 rounded-lg bg-error text-on-primary font-label-md text-label-md active:scale-[0.98] transition-transform" data-action="sortie" type="button">Sortie d'argent</button>
+</div>
+<div class="space-y-1 p-3 rounded-lg bg-surface-container-low">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-[12px] text-on-surface-variant">Sous-total</span>
+<span class="font-data-mono text-[12px] text-primary" id="sub-total">$0</span>
+</div>
+<div class="flex items-center justify-between pt-1.5 border-t border-surface-variant">
+<span class="font-label-md text-label-md text-primary font-bold">Total</span>
+<span class="font-data-mono text-data-mono text-primary font-bold" id="cart-total">$0</span>
+</div>
+<p class="font-body-sm text-[11px] text-secondary text-right pt-1 hidden" id="fx-note"></p>
+</div>
+<button class="w-full h-12 rounded-lg bg-primary text-on-primary font-label-lg text-label-lg active:scale-[0.98] transition-transform shadow-md disabled:opacity-40" id="checkout" type="button" disabled>
+Encaisser la vente
+</button>
+</div>
+</div>
+</div>
+</main>

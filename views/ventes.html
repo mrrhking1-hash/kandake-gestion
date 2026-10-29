@@ -1,0 +1,211 @@
+<main class="flex flex-col relative w-full pt-header pb-nav bg-surface min-h-dvh">
+<div class="flex flex-col w-full px-margin space-y-space-md">
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Commandes</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Ventes</h2>
+</div>
+<button class="shrink-0 flex items-center gap-1.5 h-10 px-3 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md active:scale-95 transition-transform" id="export" type="button">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Exporter</span>
+</button>
+</div>
+<div class="flex gap-2 scroll-x -mx-margin px-margin">
+<button class="period chip shrink-0 px-3 h-8 rounded-full bg-primary text-on-primary font-label-md text-label-md" data-days="0" data-kpi="today" type="button">Aujourd'hui</button>
+<button class="period chip shrink-0 px-3 h-8 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md" data-days="7" data-kpi="week" type="button">7 jours</button>
+<button class="period chip shrink-0 px-3 h-8 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md" data-days="30" data-kpi="month" type="button">30 jours</button>
+</div>
+</div>
+<!-- KPI -->
+<div class="grid grid-cols-2 gap-gutter">
+<div class="col-span-2 relative overflow-hidden rounded-xl bg-primary text-on-primary p-space-md shadow-lg">
+<div class="absolute -right-4 -top-6 w-28 h-28 rounded-full bg-secondary/20 blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-label-sm text-secondary-fixed uppercase tracking-wider" id="kpi-label">CA aujourd'hui</span>
+<span class="material-symbols-outlined text-[18px] text-secondary-fixed">account_balance_wallet</span>
+</div>
+<div class="flex items-baseline justify-between">
+<span class="font-headline-lg-mobile text-headline-lg-mobile tracking-tight text-on-primary font-bold" id="kpi-ca">$3 180</span>
+<span class="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-surface-container-highest/20 text-secondary-fixed font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[14px]">trending_up</span><span id="kpi-delta">+12,6 %</span>
+</span>
+</div>
+<div class="mt-3 flex items-center justify-between text-on-primary-container font-body-sm text-[11px]">
+<span id="kpi-sub">18 transactions</span>
+<span id="kpi-prev">Hier : 2 820 $</span>
+</div>
+</div>
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Panier moyen</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold block mt-1" id="kpi-basket">$412</span>
+<span class="font-body-sm text-[11px] text-on-surface-variant">Objectif $450</span>
+</div>
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Transformation</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold block mt-1" id="kpi-rate">68 %</span>
+<span class="font-body-sm text-[11px] text-on-surface-variant">Visiteurs → achat</span>
+</div>
+</div>
+<!-- Filtres statut -->
+<div class="flex flex-col gap-2">
+<p class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Statut</p>
+<div class="flex gap-2 scroll-x -mx-margin px-margin">
+<button class="status chip shrink-0 px-3 h-8 rounded-full bg-primary text-on-primary font-label-md text-label-md" data-status="all" type="button">Toutes</button>
+<button class="status chip shrink-0 px-3 h-8 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md" data-status="paid" type="button">Encaissées</button>
+<button class="status chip shrink-0 px-3 h-8 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md" data-status="pending" type="button">En attente</button>
+<button class="status chip shrink-0 px-3 h-8 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md" data-status="refunded" type="button">Remboursées</button>
+</div>
+</div>
+<!-- Liste -->
+<div class="flex flex-col gap-gutter" id="orders">
+<button class="rise w-full flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest shadow-sm text-left active:scale-[0.99] transition-transform" data-status="paid" data-days="0" type="button">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-9 h-9 rounded-full bg-success-container text-success flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">diamond</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-data-mono text-[13px] text-primary font-bold">KDK-9934</span>
+<span class="shrink-0 px-1.5 py-0.5 rounded-full bg-success-container text-success font-label-sm text-[9px] uppercase">VIP</span>
+</div>
+<p class="font-body-sm text-[11px] text-primary font-semibold truncate">Fatou Diop</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant truncate">Lace Frontal 22&quot; + wig cap × 2</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-data-mono text-data-mono text-primary font-bold block">$980</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">Aujourd'hui 14:22</span>
+<span class="block font-label-sm text-[10px] text-secondary font-semibold">Carte</span>
+</div>
+</button>
+<button class="rise w-full flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest shadow-sm text-left active:scale-[0.99] transition-transform" data-status="paid" data-days="0" type="button">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-9 h-9 rounded-full bg-success-container text-success flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">storefront</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-data-mono text-[13px] text-primary font-bold">KDK-9933</span>
+<span class="shrink-0 px-1.5 py-0.5 rounded-full bg-success-container text-success font-label-sm text-[9px] uppercase">Soldé</span>
+</div>
+<p class="font-body-sm text-[11px] text-primary font-semibold truncate">Client de passage</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant truncate">Statuette bronze Dogon × 2</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-data-mono text-data-mono text-primary font-bold block">$640</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">Aujourd'hui 13:48</span>
+<span class="block font-label-sm text-[10px] text-secondary font-semibold">Mobile Money</span>
+</div>
+</button>
+<button class="rise w-full flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest shadow-sm text-left active:scale-[0.99] transition-transform" data-status="pending" data-days="0" type="button">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-9 h-9 rounded-full bg-success-container text-success flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-data-mono text-[13px] text-primary font-bold">KDK-9932</span>
+<span class="shrink-0 px-1.5 py-0.5 rounded-full bg-warning-container text-warning font-label-sm text-[9px] uppercase">Attente</span>
+</div>
+<p class="font-body-sm text-[11px] text-primary font-semibold truncate">Aminata Ndiaye</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant truncate">Mèches ondulées premium × 4</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-data-mono text-data-mono text-primary font-bold block">$760</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">Aujourd'hui 12:05</span>
+<span class="block font-label-sm text-[10px] text-secondary font-semibold">Mobile Money</span>
+</div>
+</button>
+<button class="rise w-full flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest shadow-sm text-left active:scale-[0.99] transition-transform" data-status="paid" data-days="1" type="button">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-9 h-9 rounded-full bg-success-container text-success flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-data-mono text-[13px] text-primary font-bold">KDK-9931</span>
+<span class="shrink-0 px-1.5 py-0.5 rounded-full bg-success-container text-success font-label-sm text-[9px] uppercase">Sur mesure</span>
+</div>
+<p class="font-body-sm text-[11px] text-primary font-semibold truncate">Client VIP international</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant truncate">Perruque sur-mesure lace 24&quot;</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-data-mono text-data-mono text-primary font-bold block">$1 850</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">Hier 17:40</span>
+<span class="block font-label-sm text-[10px] text-secondary font-semibold">Virement</span>
+</div>
+</button>
+<button class="rise w-full flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest shadow-sm text-left active:scale-[0.99] transition-transform" data-status="paid" data-days="1" type="button">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-9 h-9 rounded-full bg-success-container text-success flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-data-mono text-[13px] text-primary font-bold">KDK-9930</span>
+<span class="shrink-0 px-1.5 py-0.5 rounded-full bg-success-container text-success font-label-sm text-[9px] uppercase">Revendeur</span>
+</div>
+<p class="font-body-sm text-[11px] text-primary font-semibold truncate">Galerie Dakar Art</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant truncate">Vase bronze impérial × 2</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-data-mono text-data-mono text-primary font-bold block">$1 080</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">Hier 11:15</span>
+<span class="block font-label-sm text-[10px] text-secondary font-semibold">Carte</span>
+</div>
+</button>
+<button class="rise w-full flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest shadow-sm text-left active:scale-[0.99] transition-transform" data-status="refunded" data-days="2" type="button">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-9 h-9 rounded-full bg-success-container text-success flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">undo</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-data-mono text-[13px] text-primary font-bold">KDK-9929</span>
+<span class="shrink-0 px-1.5 py-0.5 rounded-full bg-surface-variant text-on-surface-variant font-label-sm text-[9px] uppercase">Remboursé</span>
+</div>
+<p class="font-body-sm text-[11px] text-primary font-semibold truncate">Fatou Diop</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant truncate">Masque africain ancien</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-data-mono text-data-mono text-primary font-bold block">$780</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">2 oct. 16:02</span>
+<span class="block font-label-sm text-[10px] text-secondary font-semibold">Carte</span>
+</div>
+</button>
+<button class="rise w-full flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest shadow-sm text-left active:scale-[0.99] transition-transform" data-status="paid" data-days="3" type="button">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-9 h-9 rounded-full bg-success-container text-success flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">spa</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-data-mono text-[13px] text-primary font-bold">KDK-9928</span>
+<span class="shrink-0 px-1.5 py-0.5 rounded-full bg-success-container text-success font-label-sm text-[9px] uppercase">Fidélité</span>
+</div>
+<p class="font-body-sm text-[11px] text-primary font-semibold truncate">Cliente salon</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant truncate">Sérum kératine × 3 + Raw hair 500 g</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-data-mono text-data-mono text-primary font-bold block">$415</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">1 oct. 10:30</span>
+<span class="block font-label-sm text-[10px] text-secondary font-semibold">Espèces</span>
+</div>
+</button>
+</div>
+<div class="text-center py-2 hidden" id="orders-empty">
+<span class="material-symbols-outlined text-[32px] text-outline-variant">receipt_long</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Aucune commande pour ces filtres.</p>
+</div>
+<p class="text-center font-body-sm text-[11px] text-on-surface-variant pb-2">
+Touchez une commande pour envoyer son reçu WhatsApp.
+</p>
+</div>
+</main>

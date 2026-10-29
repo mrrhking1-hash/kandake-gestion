@@ -1,0 +1,115 @@
+<!-- Hors-ligne - Kandake -->
+<!DOCTYPE html><html class="light" lang="fr"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>Hors-ligne · Kandake Gestion</title>
+<meta content="#000000" name="theme-color">
+<meta content="light" name="color-scheme">
+<link href="icons/favicon.svg" rel="icon" type="image/svg+xml">
+<link href="icons/icon-192.png" rel="icon" sizes="192x192" type="image/png">
+<link href="icons/apple-touch-icon.png" rel="apple-touch-icon">
+<link href="manifest.json" rel="manifest">
+<link href="css/app.css" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+    background: #fcf9f8;
+    color: #1c1b1b;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .card {
+    width: 100%;
+    max-width: 26rem;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 28px 22px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 8px 24px rgba(0, 0, 0, .05);
+    text-align: center;
+  }
+  .card img { width: 64px; height: 64px; border-radius: 16px; }
+  .kicker {
+    margin: 18px 0 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: #7a5900;
+  }
+  h1 { margin: 0 0 8px; font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+  p { margin: 0 0 6px; font-size: 14px; line-height: 20px; color: #444748; }
+  .links {
+    margin: 20px 0 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    text-align: left;
+  }
+  .links a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 12px;
+    border-radius: 10px;
+    background: #f6f3f2;
+    color: #1c1b1b;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .links a:active { background: #e5e2e1; }
+  .btn {
+    margin-top: 20px;
+    width: 100%;
+    height: 48px;
+    border: 0;
+    border-radius: 10px;
+    background: #000;
+    color: #fff;
+    font: 700 14px 'Plus Jakarta Sans', system-ui, sans-serif;
+    cursor: pointer;
+  }
+  .btn:active { transform: scale(.98); }
+  .note { margin-top: 14px; font-size: 11px; color: #747878; }
+</style>
+</head>
+<body>
+<div class="card">
+  <img src="icons/icon-192.png" alt="" width="64" height="64">
+  <p class="kicker">Kandake Gestion</p>
+  <h1>Vous êtes hors-ligne</h1>
+  <p>Aucune connexion n'a pu être établie. Les pages déjà visitées restent accessibles : la caisse, les stocks et les finances fonctionnent en local.</p>
+
+  <nav class="links">
+    <a href="index.html#/caisse">Caisse</a>
+    <a href="index.html#/stocks">Stocks</a>
+    <a href="index.html#/ventes">Ventes</a>
+    <a href="index.html#/finances">Finances</a>
+  </nav>
+
+  <button class="btn" id="retry" type="button">Réessayer</button>
+  <p class="note" id="state">Vérification de la connexion…</p>
+</div>
+<script>
+  var state = document.getElementById('state');
+
+  function paint() {
+    state.textContent = navigator.onLine
+      ? 'Connexion rétablie — rechargement…'
+      : 'Toujours hors-ligne. Vos saisies restent enregistrées localement.';
+  }
+
+  document.getElementById('retry').addEventListener('click', function () {
+    if (navigator.onLine) location.href = 'index.html';
+    else paint();
+  });
+
+  window.addEventListener('online', function () { location.href = 'index.html'; });
+  paint();
+</script>
+</body></html>
