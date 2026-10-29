@@ -8,7 +8,7 @@ service worker.
 
 L'application est publiée via GitHub Pages :
 
-**https://<utilisateur>.github.io/kandake-gestion/**
+**https://mrrhking1-hash.github.io/kandake-gestion/**
 
 Sur mobile, ouvrir le lien puis « Ajouter à l'écran d'accueil » pour l'installer
 comme une application.
