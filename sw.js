@@ -8,7 +8,7 @@
  *     et Google Fonts sont chargés à l'exécution : sans cache l'app est illisible hors-ligne)
  */
 
-const VERSION = 'v43';
+const VERSION = 'v44';
 const SHELL_CACHE = `kandake-shell-${VERSION}`;
 const RUNTIME_CACHE = `kandake-runtime-${VERSION}`;
 const OFFLINE_URL = 'hors-ligne.html';

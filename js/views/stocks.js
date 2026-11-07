@@ -97,6 +97,7 @@
       var fStock = document.getElementById('ed-stock');
       var fMax = document.getElementById('ed-max');
       var fStatus = document.getElementById('ed-status');
+      var iconPreview = document.getElementById('ed-icon');
       if (fStatus) fStatus.disabled = true;
       var edError = document.getElementById('ed-error');
       var edErrorText = document.getElementById('ed-error-text');
@@ -109,6 +110,9 @@
       fStatus.innerHTML = Object.keys(KD.PRODUCT_STATUS).map(function (s) {
         return '<option value="' + esc(s) + '">' + esc(s) + '</option>';
       }).join('');
+      fCat.addEventListener('change', function () {
+        iconPreview.textContent = KD.productIcon(fCat.value);
+      });
 
       function statusOf(p) {
         return KD.PRODUCT_STATUS[p.status] || KD.PRODUCT_STATUS['En stock'];
@@ -387,7 +391,7 @@
         fMax.value = p ? String(p.max) : '';
         fStatus.value = p ? p.status : 'En stock';
         document.getElementById('ed-title').textContent = p ? 'Modifier le produit' : 'Nouveau produit';
-        document.getElementById('ed-icon').textContent = p ? p.icon : 'inventory_2';
+        iconPreview.textContent = KD.productIcon(p ? p.cat : fCat.value);
         saveText.textContent = p ? 'Enregistrer' : 'Ajouter';
         showError(null);
         editor.classList.remove('hidden');

@@ -130,6 +130,12 @@
 
   KD.PRODUCT_CATS = ['Beauty', 'Art'];
 
+  /* Une icône cohérente par univers : beauté capillaire pour Beauty,
+     maison pour les objets de décoration Art. */
+  KD.productIcon = function (cat) {
+    return cat === 'Art' ? 'home' : 'face_retouching_natural';
+  };
+
   KD.PRODUCT_STATUS = {
     'En stock': { cls: 'bg-success-container text-success', bar: 'bg-success-container' },
     'Faible': { cls: 'bg-warning-container text-warning', bar: 'bg-warning-container' },
@@ -192,6 +198,7 @@
       if (p && typeof p === 'object') {
         p.cat = veriteCategorie(p);
         p.status = KD.stockStatus(p.stock, p.max);
+        p.icon = KD.productIcon(p.cat);
         var achat = p.purchasePrice == null || p.purchasePrice === '' ? null : Number(p.purchasePrice);
         p.purchasePrice = achat !== null && isFinite(achat) && achat >= 0 ? achat : null;
       }
@@ -202,7 +209,10 @@
   KD.saveProducts = function (list) {
     try {
       list.forEach(function (p) {
-        if (p && typeof p === 'object') p.status = KD.stockStatus(p.stock, p.max);
+        if (p && typeof p === 'object') {
+          p.status = KD.stockStatus(p.stock, p.max);
+          p.icon = KD.productIcon(p.cat);
+        }
       });
       window.localStorage.setItem(PRODUCTS_KEY, JSON.stringify(list));
       document.dispatchEvent(new CustomEvent('kd:products'));
@@ -230,7 +240,7 @@
     var id = 'p' + Date.now();
     list.unshift({
       id: id, sku: '', cat: KD.PRODUCT_CATS[0], price: 0, purchasePrice: null,
-      stock: 0, max: 10, status: 'En stock', icon: 'inventory_2',
+      stock: 0, max: 10, status: 'En stock', icon: KD.productIcon(KD.PRODUCT_CATS[0]),
       name: 'Nouveau produit'
     });
     Object.keys(data || {}).forEach(function (k) { list[0][k] = data[k]; });
