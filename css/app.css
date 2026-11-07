@@ -45,7 +45,7 @@ body.is-bare #route-bar { display: none; }
 
 /* ---- Menu de profil : panneau lateral tactile ---- */
 #profile-sidebar aside {
-  transform: translateX(-102%);
+  transform: translateX(102%);
   transition: transform .22s ease-out;
 }
 #profile-sidebar:not(.hidden) aside { transform: translateX(0); }

@@ -53,14 +53,17 @@
 
 <div class="fixed inset-0 z-[70] hidden" id="profile-sidebar" aria-hidden="true">
 <button class="absolute inset-0 bg-on-surface/40" id="profile-backdrop" type="button" aria-label="Fermer le menu"></button>
-<aside class="absolute left-0 top-0 bottom-0 w-[86vw] max-w-[19rem] bg-surface-container-lowest shadow-2xl p-space-md pb-safe flex flex-col gap-space-md" aria-label="Menu du profil">
+<aside class="absolute right-0 top-0 bottom-0 w-[86vw] max-w-[19rem] bg-primary text-on-primary shadow-2xl p-space-md pb-safe flex flex-col gap-space-md" aria-label="Menu du profil">
 <div class="flex items-center justify-between pt-safe">
-<div><span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Compte</span><p class="font-headline-sm text-primary font-bold" id="profile-name">Profil</p></div>
-<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center" id="profile-close" type="button" aria-label="Fermer le menu"><span class="material-symbols-outlined">close</span></button>
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-11 h-11 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[22px]">person</span></div>
+<div class="min-w-0"><span class="font-label-sm text-[10px] uppercase tracking-[0.16em] text-secondary-fixed">Compte</span><p class="font-headline-sm text-on-primary font-bold tracking-tight truncate" id="profile-name">Profil</p></div>
 </div>
-<div class="h-px bg-surface-variant"></div>
-<button class="w-full min-h-14 rounded-xl bg-surface-container-low px-4 flex items-center gap-3 text-left text-primary" type="button" data-profile-page="clients"><span class="material-symbols-outlined text-secondary">group</span><span class="font-label-md text-label-md font-semibold">Clients</span></button>
-<button class="w-full min-h-14 rounded-xl bg-surface-container-low px-4 flex items-center gap-3 text-left text-primary" type="button" data-profile-page="reglages"><span class="material-symbols-outlined text-secondary">settings</span><span class="font-label-md text-label-md font-semibold">Paramètres</span></button>
+<button class="w-10 h-10 rounded-full bg-on-primary/10 text-on-primary flex items-center justify-center shrink-0" id="profile-close" type="button" aria-label="Fermer le menu"><span class="material-symbols-outlined">close</span></button>
+</div>
+<div class="h-px bg-on-primary/15"></div>
+<button class="w-full min-h-14 rounded-xl bg-on-primary/10 px-4 flex items-center gap-3 text-left text-on-primary active:bg-on-primary/15" type="button" data-profile-page="clients"><span class="material-symbols-outlined text-secondary-fixed">group</span><span class="font-label-md text-label-md font-semibold">Clients</span></button>
+<button class="w-full min-h-14 rounded-xl bg-on-primary/10 px-4 flex items-center gap-3 text-left text-on-primary active:bg-on-primary/15" type="button" data-profile-page="reglages"><span class="material-symbols-outlined text-secondary-fixed">settings</span><span class="font-label-md text-label-md font-semibold">Paramètres</span></button>
 </aside>
 </div>
 
