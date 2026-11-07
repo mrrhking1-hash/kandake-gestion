@@ -103,12 +103,19 @@ main.login-shell { min-height: 100vh; min-height: 100dvh; }
 /* ---- Install / update prompt ---- */
 #pwa-prompt {
   position: fixed;
-  left: 12px; right: 12px;
-  bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-  z-index: 60;
+  inset: 0;
+  z-index: 1000;
   display: none;
+  align-items: center;
+  justify-content: center;
+  padding: max(20px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px))
+    max(20px, env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
+  background: rgba(16, 19, 24, .68);
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
 }
-#pwa-prompt[data-open="true"] { display: block; }
+#pwa-prompt[data-open="true"] { display: flex; }
+#pwa-prompt .pwa-prompt-card { width: min(100%, 390px); }
 
 /* ---- Page de connexion : details qui font la différence ---- */
 /* Safari/Chrome repeignent les champs auto-completes en jaune : on force

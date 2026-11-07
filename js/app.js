@@ -541,15 +541,21 @@ var title = document.getElementById('page-title');
     if (!box) {
       box = document.createElement('div');
       box.id = 'pwa-prompt';
-      box.setAttribute('role', 'status');
-      box.setAttribute('aria-live', 'polite');
-      box.className =
-        'flex items-center gap-2 p-3 rounded-xl bg-primary text-on-primary shadow-xl';
+      box.setAttribute('role', 'dialog');
+      box.setAttribute('aria-modal', 'true');
+      box.setAttribute('aria-labelledby', 'pwa-update-title');
+      box.className = 'items-center justify-center p-5';
       box.innerHTML =
-        '<span class="material-symbols-outlined text-secondary-fixed text-[20px] shrink-0">published_with_changes</span>' +
-        '<span class="font-body-sm text-[12px] flex-1 min-w-0">Nouvelle version disponible</span>' +
-        '<button type="button" data-act="reload" class="shrink-0 px-3 h-8 rounded-md bg-secondary-container text-on-secondary-container font-label-md text-label-md">Mettre \u00e0 jour</button>' +
-        '<button type="button" data-act="later" aria-label="Plus tard" class="shrink-0 w-8 h-8 flex items-center justify-center text-on-primary/70 active:scale-90"><span class="material-symbols-outlined text-[18px]">close</span></button>';
+        '<section class="pwa-prompt-card rounded-3xl bg-surface-container-lowest px-6 pt-6 pb-4 shadow-2xl text-center">' +
+          '<div class="mx-auto w-14 h-14 rounded-2xl bg-primary text-secondary-fixed flex items-center justify-center shadow-md">' +
+            '<span class="material-symbols-outlined text-[30px]">published_with_changes</span>' +
+          '</div>' +
+          '<p class="mt-4 font-label-sm text-[10px] uppercase tracking-[0.18em] text-secondary font-bold">Mise à jour</p>' +
+          '<h2 id="pwa-update-title" class="mt-1 font-headline-sm text-headline-sm text-primary">Nouvelle version disponible</h2>' +
+          '<button type="button" data-act="reload" class="mt-5 w-full h-12 rounded-xl bg-primary text-on-primary font-label-lg font-bold shadow-md active:scale-[0.98] transition-transform">Mettre à jour</button>' +
+          '<button type="button" data-act="later" class="mt-2 w-full h-10 rounded-xl text-on-surface-variant font-label-md active:scale-[0.98] transition-transform">Plus tard</button>' +
+          '<p class="mt-4 pt-3 border-t border-surface-variant font-label-sm text-[10px] tracking-wide text-on-surface-variant">© Robart&amp;design 2026</p>' +
+        '</section>';
       document.body.appendChild(box);
     }
     box.setAttribute('data-open', 'true');
