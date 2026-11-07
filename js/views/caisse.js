@@ -43,24 +43,23 @@ if (!y) return;
          (vue Stocks) devient une tuile cliquable portant son montant. */
       function tuile(p) {
         var st = KD.PRODUCT_STATUS[p.status] || KD.PRODUCT_STATUS['En stock'];
-        var el = document.createElement('button');
-        el.type = 'button';
-        el.className = 'relative flex flex-col gap-1 p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-left active:scale-[0.98] transition-transform';
+        var el = document.createElement('div');
+        el.className = 'relative rounded-xl bg-surface-container-lowest shadow-sm transition-all';
         el.setAttribute('data-pid', p.id);
         el.setAttribute('data-name', [p.name, p.sku, p.cat].join(' '));
+        el.setAttribute('data-product-name', p.name);
         el.setAttribute('data-price', p.price);
         el.setAttribute('data-cat', p.cat);
         el.innerHTML =
-          '<div class="flex items-start gap-1">' +
-            '<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center shrink-0">' +
-              '<span class="material-symbols-outlined text-[18px] text-secondary">' + esc(p.icon || 'inventory_2') + '</span>' +
-            '</div>' +
-          '</div>' +
-          '<span class="absolute top-2 right-2 w-7 h-7 rounded-full bg-secondary-fixed text-on-secondary-fixed ring-2 ring-surface-container-lowest font-data-mono text-[12px] font-bold items-center justify-center shadow-sm" data-qty-badge aria-label="Quantité dans le ticket" style="display:none">0</span>' +
-          '<h3 class="font-body-sm text-[12px] text-primary font-semibold leading-tight line-clamp-2">' + esc(p.name) + '</h3>' +
-          '<div class="flex items-center justify-between gap-1 pt-0.5">' +
-            '<span class="font-data-mono text-[13px] text-primary font-bold">' + KD.money(p.price) + '</span>' +
-            '<span class="shrink-0 px-1.5 py-0.5 rounded-full ' + st.cls + ' font-label-sm text-[9px]">' + (Number(p.stock) || 0) + ' · ' + esc(p.status || 'En stock') + '</span>' +
+          '<button class="w-full flex flex-col gap-1 p-2.5 text-left active:scale-[0.98] transition-transform" type="button" data-add-product aria-label="Ajouter ' + esc(p.name) + ' au ticket">' +
+            '<div class="flex items-start gap-1"><div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[18px] text-secondary">' + esc(p.icon || 'inventory_2') + '</span></div></div>' +
+            '<h3 class="font-body-sm text-[12px] text-primary font-semibold leading-tight line-clamp-2">' + esc(p.name) + '</h3>' +
+            '<div class="flex items-center justify-between gap-1 pt-0.5"><span class="font-data-mono text-[13px] text-primary font-bold">' + KD.money(p.price) + '</span><span class="shrink-0 px-1.5 py-0.5 rounded-full ' + st.cls + ' font-label-sm text-[9px]">' + (Number(p.stock) || 0) + ' · ' + esc(p.status || 'En stock') + '</span></div>' +
+          '</button>' +
+          '<div class="absolute top-2 right-2 items-center gap-1" data-qty-controls style="display:none">' +
+            '<button class="w-7 h-7 rounded-full bg-surface-container text-primary font-bold shadow-sm" type="button" data-cart-step="-1" aria-label="Retirer une unité de ' + esc(p.name) + '">−</button>' +
+            '<span class="w-7 h-7 rounded-full bg-secondary-fixed text-on-secondary-fixed ring-2 ring-surface-container-lowest font-data-mono text-[12px] font-bold flex items-center justify-center shadow-sm" data-qty-badge aria-live="polite">0</span>' +
+            '<button class="w-7 h-7 rounded-full bg-primary text-on-primary font-bold shadow-sm" type="button" data-cart-step="1" aria-label="Ajouter une unité de ' + esc(p.name) + '">+</button>' +
           '</div>';
         return el;
       }
@@ -188,7 +187,7 @@ if (!y) return;
       function sauverEtat() {
         try {
           window.localStorage.setItem(ETAT_KEY, JSON.stringify({
-            cat: posCat, q: posSearch.value, cur: currency, cart: cart,
+            cat: posCat, q: posSearch.value, cur: currency,
             shop: shopActif, op: opActif, action: actionActif
           }));
         } catch (e) {}
@@ -313,11 +312,9 @@ if (!y) return;
           var ligne = cart.filter(function (l) { return l.pid === tile.getAttribute('data-pid'); })[0];
           var qte = ligne ? ligne.qty : 0;
           var badge = tile.querySelector('[data-qty-badge]');
-          if (badge) {
-            badge.textContent = String(qte);
-            badge.style.display = qte ? 'flex' : 'none';
-            badge.setAttribute('aria-label', qte + (qte === 1 ? ' unité dans le ticket' : ' unités dans le ticket'));
-          }
+          var controls = tile.querySelector('[data-qty-controls]');
+          if (badge) badge.textContent = String(qte);
+          if (controls) controls.style.display = qte ? 'flex' : 'none';
           tile.classList.toggle('ring-1', qte > 0);
           tile.classList.toggle('ring-secondary', qte > 0);
           selection += qte;
@@ -400,15 +397,26 @@ if (!y) return;
         renderCart();
       }
 
-      /* Clic sur une tuile du catalogue = ajout au ticket. */
+      /* La carte ajoute un article; les commandes rondes ajustent sa quantité. */
       grid.addEventListener('click', function (e) {
+        var stepButton = e.target.closest('[data-cart-step]');
         var tile = e.target.closest('[data-pid]');
         if (!tile) return;
-        add(
-          tile.getAttribute('data-pid'),
-          tile.getAttribute('data-name'),
-          parseInt(tile.getAttribute('data-price'), 10) || 0
-        );
+        var pid = tile.getAttribute('data-pid');
+        var name = tile.getAttribute('data-product-name');
+        var price = parseInt(tile.getAttribute('data-price'), 10) || 0;
+        if (stepButton) {
+          var line = cart.filter(function (item) { return item.pid === pid; })[0];
+          if (!line) return;
+          var step = parseInt(stepButton.getAttribute('data-cart-step'), 10);
+          if (step < 0) {
+            line.qty--;
+            if (line.qty <= 0) cart = cart.filter(function (item) { return item.pid !== pid; });
+            renderCart();
+          } else add(pid, name, price);
+          return;
+        }
+        if (e.target.closest('[data-add-product]')) add(pid, name, price);
       });
 
       /* Quantités depuis le drawer. */
@@ -569,11 +577,6 @@ if (!y) return;
         if (['entree', 'sortie'].indexOf(etat.action) !== -1) {
           actionActif = etat.action;
           setAction(actionActif);
-        }
-        if (Array.isArray(etat.cart)) {
-          cart = etat.cart.filter(function (l) {
-            return l && typeof l === 'object' && l.pid && l.name && l.qty > 0;
-          });
         }
         applyFilters();
       }
