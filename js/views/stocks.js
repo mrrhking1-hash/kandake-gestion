@@ -93,6 +93,7 @@
       var fSku = document.getElementById('ed-sku');
       var fCat = document.getElementById('ed-cat');
       var fPrice = document.getElementById('ed-price');
+      var fPurchasePrice = document.getElementById('ed-purchase-price');
       var fStock = document.getElementById('ed-stock');
       var fMax = document.getElementById('ed-max');
       var fStatus = document.getElementById('ed-status');
@@ -381,6 +382,7 @@
         fSku.value = p ? (p.sku || '') : '';
         fCat.value = p ? p.cat : KD.PRODUCT_CATS[0];
         fPrice.value = p ? String(p.price) : '';
+        fPurchasePrice.value = p && p.purchasePrice != null ? String(p.purchasePrice) : '';
         fStock.value = p ? String(p.stock) : '';
         fMax.value = p ? String(p.max) : '';
         fStatus.value = p ? p.status : 'En stock';
@@ -418,11 +420,18 @@
 
           var name = fName.value.trim();
           var price = toNumber(fPrice.value);
+          var achatSaisi = fPurchasePrice.value.trim();
+          var purchasePrice = achatSaisi === '' ? null : toNumber(achatSaisi);
           var stock = toNumber(fStock.value);
           var max = toNumber(fMax.value);
 
           if (!name) { showError('Le nom du produit est obligatoire.'); return; }
           if (!isFinite(price) || price < 0) { showError('Prix invalide.'); fPrice.focus(); return; }
+          if (purchasePrice !== null && (!isFinite(purchasePrice) || purchasePrice < 0)) {
+            showError('Prix d’achat invalide.');
+            fPurchasePrice.focus();
+            return;
+          }
           if (!isFinite(stock) || stock < 0 || !isFinite(max) || max <= 0) {
             showError('Stock et seuil doivent être des nombres positifs.');
             fStock.focus();
@@ -437,6 +446,7 @@
                de l'application : on arrondit plutot que d'afficher un montant
                different de celui enregistre. */
             price: Math.round(price),
+            purchasePrice: purchasePrice === null ? null : Math.round(purchasePrice),
             stock: Math.round(stock),
             max: Math.round(max),
             status: fStatus.value

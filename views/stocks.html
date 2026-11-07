@@ -95,23 +95,33 @@
 
 <div class="flex gap-3">
 <div class="flex-1 min-w-0 flex flex-col gap-1.5">
-<label class="font-label-sm text-[10px] uppercase tracking-wider text-secondary font-bold" for="ed-price">Prix (USD)</label>
+<label class="font-label-sm text-[10px] uppercase tracking-wider text-secondary font-bold" for="ed-price">Prix de vente (USD)</label>
 <div class="flex items-center h-11 px-3 rounded-xl bg-surface-container-low focus-within:ring-2 focus-within:ring-secondary">
 <span class="text-on-surface-variant text-[13px] mr-1">$</span>
 <input class="w-full min-w-0 bg-transparent outline-none font-data-mono text-[16px]" id="ed-price" type="text" inputmode="decimal">
 </div>
 </div>
 <div class="flex-1 min-w-0 flex flex-col gap-1.5">
-<label class="font-label-sm text-[10px] uppercase tracking-wider text-secondary font-bold" for="ed-stock">Stock</label>
-<input class="w-full h-11 px-3 rounded-xl bg-surface-container-low outline-none focus:ring-2 focus:ring-secondary font-data-mono text-[16px]" id="ed-stock" type="text" inputmode="numeric">
+<label class="font-label-sm text-[10px] uppercase tracking-wider text-secondary font-bold" for="ed-purchase-price">Prix d’achat (USD)</label>
+<div class="flex items-center h-11 px-3 rounded-xl bg-surface-container-low focus-within:ring-2 focus-within:ring-secondary">
+<span class="text-on-surface-variant text-[13px] mr-1">$</span>
+<input class="w-full min-w-0 bg-transparent outline-none font-data-mono text-[16px]" id="ed-purchase-price" type="text" inputmode="decimal" placeholder="Facultatif">
+</div>
 </div>
 </div>
 
 <div class="flex gap-3">
 <div class="flex-1 min-w-0 flex flex-col gap-1.5">
+<label class="font-label-sm text-[10px] uppercase tracking-wider text-secondary font-bold" for="ed-stock">Stock</label>
+<input class="w-full h-11 px-3 rounded-xl bg-surface-container-low outline-none focus:ring-2 focus:ring-secondary font-data-mono text-[16px]" id="ed-stock" type="text" inputmode="numeric">
+</div>
+<div class="flex-1 min-w-0 flex flex-col gap-1.5">
 <label class="font-label-sm text-[10px] uppercase tracking-wider text-secondary font-bold" for="ed-max">Seuil d’alerte</label>
 <input class="w-full h-11 px-3 rounded-xl bg-surface-container-low outline-none focus:ring-2 focus:ring-secondary font-data-mono text-[16px]" id="ed-max" type="text" inputmode="numeric">
 </div>
+</div>
+
+<div class="flex flex-col gap-1.5">
 <div class="flex-1 min-w-0 flex flex-col gap-1.5">
 <label class="font-label-sm text-[10px] uppercase tracking-wider text-secondary font-bold" for="ed-status">État automatique</label>
 <select class="w-full h-11 px-2 rounded-xl bg-surface-container-low outline-none focus:ring-2 focus:ring-secondary text-[16px]" id="ed-status"></select>

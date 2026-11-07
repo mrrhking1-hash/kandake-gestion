@@ -192,6 +192,8 @@
       if (p && typeof p === 'object') {
         p.cat = veriteCategorie(p);
         p.status = KD.stockStatus(p.stock, p.max);
+        var achat = p.purchasePrice == null || p.purchasePrice === '' ? null : Number(p.purchasePrice);
+        p.purchasePrice = achat !== null && isFinite(achat) && achat >= 0 ? achat : null;
       }
     });
     return list;
@@ -227,7 +229,7 @@
     var list = KD.getProducts();
     var id = 'p' + Date.now();
     list.unshift({
-      id: id, sku: '', cat: KD.PRODUCT_CATS[0], price: 0,
+      id: id, sku: '', cat: KD.PRODUCT_CATS[0], price: 0, purchasePrice: null,
       stock: 0, max: 10, status: 'En stock', icon: 'inventory_2',
       name: 'Nouveau produit'
     });
