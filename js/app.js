@@ -285,7 +285,7 @@
       if (stock < demandee[ids[i]]) {
         return { ok: false, message: 'Stock insuffisant pour ' + produit.name + ' (' + stock + ' disponible).'};
       }
-        produit.stock = stock - demandee[ids[i]];
+      produit.stock = stock - demandee[ids[i]];
       produit.status = KD.stockStatus(produit.stock, produit.max);
     }
 
