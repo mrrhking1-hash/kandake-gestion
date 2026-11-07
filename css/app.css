@@ -43,6 +43,16 @@ body.is-bare nav { display: none; }
 body.is-bare #view-root { min-height: 100vh; min-height: 100dvh; }
 body.is-bare #route-bar { display: none; }
 
+/* ---- Menu de profil : panneau lateral tactile ---- */
+#profile-sidebar aside {
+  transform: translateX(-102%);
+  transition: transform .22s ease-out;
+}
+#profile-sidebar:not(.hidden) aside { transform: translateX(0); }
+@media (prefers-reduced-motion: reduce) {
+  #profile-sidebar aside { transition: none; }
+}
+
 /* ---- Page de connexion : 9:16 portrait, symetrique sur iOS et Android ----
    Le contenu est centre avec my-auto : il restecentre quand la place manque,
    et il deborde vers le bas quand le clavier s'ouvre, au lieu d'etre coupe

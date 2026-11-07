@@ -352,6 +352,54 @@
     }, 0);
   };
 
+  /* ------------------------------------------------------------- clients
+     Fiches locales et légères : coordonnées, crédit saisi et ventes reliées. */
+  var CLIENTS_KEY = 'kandake.clients';
+  KD.getClients = function () {
+    try {
+      var list = JSON.parse(window.localStorage.getItem(CLIENTS_KEY) || '[]');
+      return Array.isArray(list) ? list.filter(function (c) { return c && c.id && c.name; }) : [];
+    } catch (e) { return []; }
+  };
+  KD.saveClients = function (list) {
+    if (!Array.isArray(list)) return false;
+    try {
+      window.localStorage.setItem(CLIENTS_KEY, JSON.stringify(list));
+      document.dispatchEvent(new CustomEvent('kd:clients'));
+      return true;
+    } catch (e) { return false; }
+  };
+  KD.addClient = function (data) {
+    var name = String(data && data.name || '').trim();
+    if (!name) return null;
+    var credit = Number(data && data.creditUsd || 0);
+    if (!isFinite(credit) || credit < 0) return null;
+    var client = { id: 'c' + Date.now(), name: name,
+      phone: String(data && data.phone || '').trim(),
+      email: String(data && data.email || '').trim(), address: String(data && data.address || '').trim(), creditUsd: credit };
+    var list = KD.getClients(); list.unshift(client);
+    return KD.saveClients(list) ? client : null;
+  };
+  KD.updateClient = function (id, patch) {
+    var list = KD.getClients();
+    var client = list.filter(function (c) { return c.id === id; })[0];
+    if (!client) return false;
+    var name = patch && patch.name != null ? String(patch.name).trim() : client.name;
+    var credit = patch && patch.creditUsd != null ? Number(patch.creditUsd) : Number(client.creditUsd) || 0;
+    if (!name || !isFinite(credit) || credit < 0) return false;
+    client.name = name;
+    client.phone = patch && patch.phone != null ? String(patch.phone).trim() : client.phone;
+    client.email = patch && patch.email != null ? String(patch.email).trim() : client.email || '';
+    client.address = patch && patch.address != null ? String(patch.address).trim() : client.address || '';
+    client.creditUsd = credit;
+    return KD.saveClients(list);
+  };
+  KD.findClientByName = function (name) {
+    var key = String(name || '').trim().toLocaleLowerCase();
+    if (!key) return null;
+    return KD.getClients().filter(function (c) { return String(c.name).trim().toLocaleLowerCase() === key; })[0] || null;
+  };
+
   /* ---------------------------------------------------- mouvements de caisse
      Entrees et sorties d'argent saisies depuis la caisse. Journal distinct des
      ventes : un mouvement ne doit jamais gonfler le chiffre d'affaires. */

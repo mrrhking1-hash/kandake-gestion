@@ -73,6 +73,20 @@ if (!y) return;
 
       rendreCatalogue();
 
+      var clientInput = document.getElementById('client');
+      var clientSuggestions = document.getElementById('client-suggestions');
+      function renderClientSuggestions() {
+        if (!clientSuggestions || typeof KD.getClients !== 'function') return;
+        clientSuggestions.innerHTML = '';
+        KD.getClients().forEach(function (client) {
+          var option = document.createElement('option');
+          option.value = client.name;
+          clientSuggestions.appendChild(option);
+        });
+      }
+      renderClientSuggestions();
+      document.addEventListener('kd:clients', renderClientSuggestions);
+
       var posSearch = document.getElementById('pos-search');
       var posEmpty = document.getElementById('pos-empty');
       var posCat = 'all';
@@ -261,6 +275,7 @@ if (!y) return;
         document.removeEventListener('kd:products', rafraichirSynthese);
         document.removeEventListener('kd:sales', rafraichirSynthese);
         document.removeEventListener('kd:products', rafraichirCatalogue);
+        document.removeEventListener('kd:clients', renderClientSuggestions);
       };
 
       function money(n) {
@@ -470,6 +485,8 @@ if (!y) return;
             currency: currency,
             rubriques: parRubrique,
             lignes: n,
+            clientId: (KD.findClientByName && KD.findClientByName(clientInput ? clientInput.value : '') || {}).id || null,
+            clientName: clientInput ? clientInput.value.trim() : '',
             articles: cart.map(function (l) {
               var produit = KD.getProduct(l.pid) || {};
               return { nom: produit.name || l.name, categorie: rubriqueDe(produit), quantite: l.qty,
@@ -486,6 +503,7 @@ if (!y) return;
           KD.toast(n + (n > 1 ? ' articles encaissés' : ' article encaissé') + ' · ' + amount);
         }
         cart = [];
+        if (clientInput) clientInput.value = '';
         renderCart();
         setDrawer(false);
         majSynthese();

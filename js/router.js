@@ -23,6 +23,8 @@
                 desc: 'Tableau de gestion, tr\u00e9sorerie et grand livre comptable de Kandake Maison &amp; Beaut\u00e9.' },
     reglages: { file: 'views/reglages.html', script: 'js/views/reglages.js', label: 'R\u00e9glages', icon: 'settings',            path: 'settings',
                 desc: 'Configuration de la boutique, de la caisse, de l\u2019\u00e9quipe et de la PWA Kandake.' },
+    clients:  { file: 'views/clients.html', script: 'js/views/clients.js', label: 'Clients', icon: 'group', path: 'clients',
+                hidden: true, desc: 'Coordonnées, crédit et dépenses des clients Kandake.' },
     /* Vue hors navigation : la connexion occupe tout l'ecran (bare) et ne
        figure ni dans la barre du bas ni dans l'ordre de prechargement. */
     connexion: { file: 'views/connexion.html', script: 'js/views/connexion.js', label: 'Connexion', icon: 'login', path: 'login',
@@ -134,6 +136,11 @@
     }
     render(name, done, force);
   }
+
+  KD.navigate = function (name) {
+    var allowed = KD.guard(name);
+    if (allowed) go(allowed, allowed === name);
+  };
 
   /* Applique le chrome (barre du bas, header) dès la décision de route, avant
      le fetch : sur mobile le réseau est lent, et une barre du bas visible mais
@@ -299,6 +306,43 @@
   KD.startRouter = function () {
     root = document.getElementById('view-root');
     if (!root) { console.error('[router] #view-root introuvable'); return; }
+
+    var profileButton = document.getElementById('profile-button');
+    var profileSidebar = document.getElementById('profile-sidebar');
+    var profileName = document.getElementById('profile-name');
+    function closeProfileMenu() {
+      if (!profileSidebar) return;
+      profileSidebar.classList.add('hidden');
+      profileSidebar.setAttribute('aria-hidden', 'true');
+      if (profileButton) profileButton.setAttribute('aria-expanded', 'false');
+    }
+    function openProfileMenu() {
+      if (!profileSidebar) return;
+      var user = KD.currentUser && KD.currentUser();
+      if (profileName) profileName.textContent = user ? user.name : 'Profil';
+      profileSidebar.classList.remove('hidden');
+      profileSidebar.setAttribute('aria-hidden', 'false');
+      if (profileButton) profileButton.setAttribute('aria-expanded', 'true');
+    }
+    KD.openProfileMenu = openProfileMenu;
+    if (profileButton) profileButton.addEventListener('click', openProfileMenu);
+    ['profile-close', 'profile-backdrop'].forEach(function (id) {
+      var button = document.getElementById(id);
+      if (button) button.addEventListener('click', closeProfileMenu);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-profile-page]'), function (button) {
+      button.addEventListener('click', function () {
+        KD.profileReturnRoute = routeFromHash() || DEFAULT_ROUTE;
+        closeProfileMenu();
+        go(button.getAttribute('data-profile-page'));
+      });
+    });
+    document.addEventListener('click', function (event) {
+      var back = event.target.closest('[data-profile-return]');
+      if (!back) return;
+      event.preventDefault();
+      go(KD.profileReturnRoute || DEFAULT_ROUTE);
+    });
 
     /* Point d'entree : une session fermee impose la page de connexion, et y
        rester tant qu'on ne s'est pas connecte. */

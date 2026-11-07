@@ -40,7 +40,7 @@
 <span class="material-symbols-outlined text-[22px]">notifications</span>
 <span id="notif-badge" class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface-container-lowest transition-opacity duration-300 ease-out"></span>
 </button>
-<button aria-label="Profil gérante" class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary ring-1 ring-secondary/30 active:scale-95 transition-transform">
+<button aria-label="Ouvrir le profil et le menu" aria-expanded="false" aria-controls="profile-sidebar" id="profile-button" class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary ring-1 ring-secondary/30 active:scale-95 transition-transform">
 <span class="material-symbols-outlined text-[18px]">person</span>
 </button>
 </div>
@@ -50,6 +50,19 @@
 <div class="h-full w-1/3 bg-secondary-container"></div>
 </div>
 </header>
+
+<div class="fixed inset-0 z-[70] hidden" id="profile-sidebar" aria-hidden="true">
+<button class="absolute inset-0 bg-on-surface/40" id="profile-backdrop" type="button" aria-label="Fermer le menu"></button>
+<aside class="absolute left-0 top-0 bottom-0 w-[86vw] max-w-[19rem] bg-surface-container-lowest shadow-2xl p-space-md pb-safe flex flex-col gap-space-md" aria-label="Menu du profil">
+<div class="flex items-center justify-between pt-safe">
+<div><span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Compte</span><p class="font-headline-sm text-primary font-bold" id="profile-name">Profil</p></div>
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center" id="profile-close" type="button" aria-label="Fermer le menu"><span class="material-symbols-outlined">close</span></button>
+</div>
+<div class="h-px bg-surface-variant"></div>
+<button class="w-full min-h-14 rounded-xl bg-surface-container-low px-4 flex items-center gap-3 text-left text-primary" type="button" data-profile-page="clients"><span class="material-symbols-outlined text-secondary">group</span><span class="font-label-md text-label-md font-semibold">Clients</span></button>
+<button class="w-full min-h-14 rounded-xl bg-surface-container-low px-4 flex items-center gap-3 text-left text-primary" type="button" data-profile-page="reglages"><span class="material-symbols-outlined text-secondary">settings</span><span class="font-label-md text-label-md font-semibold">Paramètres</span></button>
+</aside>
+</div>
 
 <!-- une seule vue injectee ici : aucun rechargement de document -->
 <div id="view-root" class="view-enter"></div>
@@ -75,10 +88,6 @@
 <a class="nav-link flex flex-col items-center justify-center gap-0.5 flex-1 h-full min-h-[48px] text-on-surface-variant active:scale-95 transition-transform text-center" data-path="finance" data-route="finances" href="#/finances">
 <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
 <span class="font-label-sm text-[10px] tracking-normal leading-tight">Finances</span>
-</a>
-<a class="nav-link flex flex-col items-center justify-center gap-0.5 flex-1 h-full min-h-[48px] text-on-surface-variant active:scale-95 transition-transform text-center" data-path="settings" data-route="reglages" href="#/reglages">
-<span class="material-symbols-outlined text-[20px]">settings</span>
-<span class="font-label-sm text-[10px] tracking-normal leading-tight">Réglages</span>
 </a>
 </div>
 </nav>

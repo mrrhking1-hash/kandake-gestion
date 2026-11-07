@@ -8,7 +8,7 @@
  *     et Google Fonts sont chargés à l'exécution : sans cache l'app est illisible hors-ligne)
  */
 
-const VERSION = 'v45';
+const VERSION = 'v46';
 const SHELL_CACHE = `kandake-shell-${VERSION}`;
 const RUNTIME_CACHE = `kandake-runtime-${VERSION}`;
 const OFFLINE_URL = 'hors-ligne.html';
@@ -31,6 +31,7 @@ const SHELL_ASSETS = [
   'views/ventes.html',
   'views/finances.html',
   'views/reglages.html',
+  'views/clients.html',
   'views/connexion.html',
   'js/views/accueil.js',
   'js/views/stocks.js',
@@ -38,6 +39,7 @@ const SHELL_ASSETS = [
   'js/views/ventes.js',
   'js/views/finances.js',
   'js/views/reglages.js',
+  'js/views/clients.js',
   'js/views/connexion.js',
   'icons/favicon.svg',
   'icons/favicon-64.png',

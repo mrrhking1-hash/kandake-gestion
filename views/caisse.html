@@ -36,7 +36,8 @@ Voir le panier
 </div>
 <div class="flex items-center gap-2 h-11 px-3 rounded-lg bg-surface-container-low shadow-sm focus-within:bg-surface-container-lowest">
 <span class="material-symbols-outlined text-[18px] text-on-surface-variant shrink-0">person</span>
-<input class="w-full bg-transparent outline-none font-body-md text-body-md text-primary placeholder:text-outline-variant" id="client" placeholder="Client (facette ou WhatsApp)" type="text">
+<input class="w-full bg-transparent outline-none font-body-md text-body-md text-primary placeholder:text-outline-variant" id="client" list="client-suggestions" placeholder="Nom du client" type="text" autocomplete="off">
+<datalist id="client-suggestions"></datalist>
 </div>
 <div class="flex items-center gap-2 h-11 px-3 rounded-lg bg-surface-container-low shadow-sm focus-within:bg-surface-container-lowest">
 <span class="material-symbols-outlined text-[18px] text-on-surface-variant shrink-0">search</span>
