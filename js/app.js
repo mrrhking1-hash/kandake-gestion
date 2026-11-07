@@ -285,7 +285,7 @@
       if (stock < demandee[ids[i]]) {
         return { ok: false, message: 'Stock insuffisant pour ' + produit.name + ' (' + stock + ' disponible).'};
       }
-      produit.stock = stock - demandee[ids[i]];
+        produit.stock = stock - demandee[ids[i]];
       produit.status = KD.stockStatus(produit.stock, produit.max);
     }
 
@@ -371,7 +371,10 @@
     var montant = Number(mouvement && mouvement.amountUsd);
     if (!isFinite(montant) || montant <= 0) return false;
     var list = KD.getMovements();
-    list.unshift({ date: jourLocal(), type: type, amountUsd: montant });
+    var categorie = mouvement && ['Beauty', 'Art', 'Général'].indexOf(mouvement.category) !== -1
+      ? mouvement.category : 'Général';
+    list.unshift({ date: jourLocal(), type: type, amountUsd: montant,
+      category: categorie, description: String(mouvement && mouvement.description || '').trim() });
     if (list.length > MOVEMENTS_MAX) list.length = MOVEMENTS_MAX;
     try {
       window.localStorage.setItem(MOVEMENTS_KEY, JSON.stringify(list));

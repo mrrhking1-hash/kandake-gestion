@@ -207,9 +207,9 @@ if (!y) return;
         }
       }
 
-      /* -------------------------------------------- synthese de la rubrique
-         Trois montants suivent le selecteur Beauty / Art : articles en stock,
-         valeur du stock et ventes encaissees aujourd'hui. */
+      /* -------------------------------------------- synthese operationnelle
+         La caisse montre le rayon actif et le ticket courant. Le chiffre
+         d'affaires est centralise dans Finances pour eviter le doublon Accueil. */
       var sumArticles = document.getElementById('sum-articles');
       var sumValeur = document.getElementById('sum-valeur');
       var sumVentes = document.getElementById('sum-ventes');
@@ -236,18 +236,17 @@ if (!y) return;
            'Beauty' / 'Art' : on normalise avant de comparer. */
         var rubrique = shopActif === 'art' ? 'Art' : 'Beauty';
         var articles = 0;
-        var valeur = 0;
+        var references = 0;
+        var unites = 0;
         KD.getProducts().forEach(function (p) {
           if (rubriqueDe(p) !== rubrique) return;
           var stock = Number(p.stock) || 0;
-          var prix = Number(p.price) || 0;
-          articles += stock;
-          valeur += stock * prix;
+          references++;
+          unites += stock;
         });
-        var ventes = typeof KD.salesToday === 'function' ? KD.salesToday(rubrique) : 0;
-        if (sumArticles) sumArticles.textContent = String(articles);
-        if (sumValeur) sumValeur.textContent = montant(valeur);
-        if (sumVentes) sumVentes.textContent = montant(ventes);
+        if (sumArticles) sumArticles.textContent = String(references);
+        if (sumValeur) sumValeur.textContent = String(unites);
+        if (sumVentes) sumVentes.textContent = montant(total());
       }
 
       /* Le stock peut changer depuis l'onglet Stocks, une vente d'ici : la
@@ -331,6 +330,7 @@ if (!y) return;
         fxNote.classList.toggle('hidden', currency !== 'CDF');
         checkout.disabled = actionActif ? false : cart.length === 0;
         sauverEtat();
+        majSynthese();
       }
 
       function add(pid, name, price) {
@@ -436,7 +436,8 @@ if (!y) return;
             return;
           }
           var enregistre = typeof KD.addMovement === 'function'
-            && KD.addMovement({ type: actionActif, amountUsd: saisie });
+            && KD.addMovement({ type: actionActif, amountUsd: saisie,
+              category: shopActif === 'art' ? 'Art' : 'Beauty', description: '' });
           if (!enregistre) {
             if (typeof KD.toast === 'function') KD.toast("Mouvement non enregistré", 'error');
             return;
@@ -468,7 +469,13 @@ if (!y) return;
             totalUsd: montantUsd,
             currency: currency,
             rubriques: parRubrique,
-            lignes: n
+            lignes: n,
+            articles: cart.map(function (l) {
+              var produit = KD.getProduct(l.pid) || {};
+              return { nom: produit.name || l.name, categorie: rubriqueDe(produit), quantite: l.qty,
+                prixVenteUsd: Number(l.price) || 0,
+                prixAchatUsd: produit.purchasePrice == null ? null : Number(produit.purchasePrice) };
+            })
           });
         if (!resultat || !resultat.ok) {
           if (typeof KD.toast === 'function') KD.toast(resultat ? resultat.message : 'Vente non enregistrée', 'error');
