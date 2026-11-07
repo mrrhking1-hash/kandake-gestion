@@ -45,22 +45,22 @@ if (!y) return;
         var st = KD.PRODUCT_STATUS[p.status] || KD.PRODUCT_STATUS['En stock'];
         var el = document.createElement('button');
         el.type = 'button';
-        el.className = 'flex flex-col gap-1 p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-left active:scale-[0.98] transition-transform';
+        el.className = 'relative flex flex-col gap-1 p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-left active:scale-[0.98] transition-transform';
         el.setAttribute('data-pid', p.id);
-        el.setAttribute('data-name', p.name);
+        el.setAttribute('data-name', [p.name, p.sku, p.cat].join(' '));
         el.setAttribute('data-price', p.price);
         el.setAttribute('data-cat', p.cat);
         el.innerHTML =
-          '<div class="flex items-start justify-between gap-1">' +
+          '<div class="flex items-start gap-1">' +
             '<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center shrink-0">' +
               '<span class="material-symbols-outlined text-[18px] text-secondary">' + esc(p.icon || 'inventory_2') + '</span>' +
             '</div>' +
-            '<span class="shrink-0 px-1.5 py-0.5 rounded-full ' + st.cls + ' font-label-sm text-[9px] uppercase">' + esc(p.status || 'En stock') + '</span>' +
           '</div>' +
+          '<span class="absolute top-2 right-2 w-7 h-7 rounded-full bg-secondary-fixed text-on-secondary-fixed ring-2 ring-surface-container-lowest font-data-mono text-[12px] font-bold items-center justify-center shadow-sm" data-qty-badge aria-label="Quantité dans le ticket" style="display:none">0</span>' +
           '<h3 class="font-body-sm text-[12px] text-primary font-semibold leading-tight line-clamp-2">' + esc(p.name) + '</h3>' +
           '<div class="flex items-center justify-between gap-1 pt-0.5">' +
             '<span class="font-data-mono text-[13px] text-primary font-bold">' + KD.money(p.price) + '</span>' +
-            '<span class="font-label-sm text-[9px] text-on-surface-variant">' + (Number(p.stock) || 0) + ' en stock</span>' +
+            '<span class="shrink-0 px-1.5 py-0.5 rounded-full ' + st.cls + ' font-label-sm text-[9px]">' + (Number(p.stock) || 0) + ' · ' + esc(p.status || 'En stock') + '</span>' +
           '</div>';
         return el;
       }
@@ -89,22 +89,38 @@ if (!y) return;
 
       var posSearch = document.getElementById('pos-search');
       var posEmpty = document.getElementById('pos-empty');
+      var searchClear = document.getElementById('pos-search-clear');
       var posCat = 'all';
 
+      function normaliserRecherche(value) {
+        return String(value || '').toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      }
+
       function applyFilters() {
-        var q = posSearch.value.trim().toLowerCase();
+        var q = normaliserRecherche(posSearch.value.trim());
         var shown = 0;
         CATALOGUE.forEach(function (t) {
-          var okText = !q || t.getAttribute('data-name').toLowerCase().indexOf(q) !== -1;
+          var okText = !q || normaliserRecherche(t.getAttribute('data-name')).indexOf(q) !== -1;
           var okCat = posCat === 'all' || t.getAttribute('data-cat').indexOf(posCat) !== -1;
           t.style.display = okText && okCat ? '' : 'none';
           if (okText && okCat) shown++;
         });
         posEmpty.classList.toggle('hidden', shown !== 0);
+        if (shown === 0) {
+          var message = posEmpty.querySelector('p');
+          if (message) message.textContent = q ? 'Aucun produit ne correspond à cette recherche.' : 'Aucun produit dans ce rayon.';
+        }
+        if (searchClear) searchClear.classList.toggle('hidden', !q);
       }
 
       posSearch.addEventListener('input', applyFilters);
       posSearch.addEventListener('input', sauverEtat);
+      if (searchClear) searchClear.addEventListener('click', function () {
+        posSearch.value = '';
+        applyFilters();
+        sauverEtat();
+        posSearch.focus();
+      });
 
       var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
       chips.forEach(function (chip) {
@@ -153,6 +169,7 @@ if (!y) return;
       var checkout = document.getElementById('checkout');
       var actionAmountRow = document.getElementById('action-amount-row');
       var actionAmount = document.getElementById('action-amount');
+      var selectedSummary = document.getElementById('selected-summary');
 
       /* Le catalogue est en dollars ; le client choisit la devise dans
          laquelle la vente est encaissée. Le taux vient de KD (réglages). */
@@ -267,7 +284,7 @@ if (!y) return;
          synthese se remet a jour sans recharger la vue. Le catalogue suit les
          produits ajoutes, modifies ou supprimes. */
       function rafraichirSynthese() { majSynthese(); }
-      function rafraichirCatalogue() { rendreCatalogue(); applyFilters(); }
+      function rafraichirCatalogue() { rendreCatalogue(); applyFilters(); majSelectionProduits(); }
       document.addEventListener('kd:products', rafraichirSynthese);
       document.addEventListener('kd:sales', rafraichirSynthese);
       document.addEventListener('kd:products', rafraichirCatalogue);
@@ -288,6 +305,24 @@ if (!y) return;
 
       function total() {
         return cart.reduce(function (n, l) { return n + l.price * l.qty; }, 0);
+      }
+
+      function majSelectionProduits() {
+        var selection = 0;
+        CATALOGUE.forEach(function (tile) {
+          var ligne = cart.filter(function (l) { return l.pid === tile.getAttribute('data-pid'); })[0];
+          var qte = ligne ? ligne.qty : 0;
+          var badge = tile.querySelector('[data-qty-badge]');
+          if (badge) {
+            badge.textContent = String(qte);
+            badge.style.display = qte ? 'flex' : 'none';
+            badge.setAttribute('aria-label', qte + (qte === 1 ? ' unité dans le ticket' : ' unités dans le ticket'));
+          }
+          tile.classList.toggle('ring-1', qte > 0);
+          tile.classList.toggle('ring-secondary', qte > 0);
+          selection += qte;
+        });
+        if (selectedSummary) selectedSummary.textContent = selection + (selection === 1 ? ' article dans le ticket' : ' articles dans le ticket');
       }
 
       function renderCart() {
@@ -345,6 +380,7 @@ if (!y) return;
         fxNote.classList.toggle('hidden', currency !== 'CDF');
         checkout.disabled = actionActif ? false : cart.length === 0;
         sauverEtat();
+        majSelectionProduits();
         majSynthese();
       }
 
