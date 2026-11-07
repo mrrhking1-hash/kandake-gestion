@@ -31,7 +31,47 @@ if (!y) return;
     },
     mount: function () {
       var grid = document.getElementById('pos-grid');
-      var CATALOGUE = Array.prototype.slice.call(grid.children);
+      var CATALOGUE = [];
+
+      function esc(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      /* Le catalogue n'est pas ecrit dans le HTML : chaque produit enregistre
+         (vue Stocks) devient une tuile cliquable portant son montant. */
+      function tuile(p) {
+        var st = KD.PRODUCT_STATUS[p.status] || KD.PRODUCT_STATUS['En stock'];
+        var el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'flex flex-col gap-1 p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-left active:scale-[0.98] transition-transform';
+        el.setAttribute('data-pid', p.id);
+        el.setAttribute('data-name', p.name);
+        el.setAttribute('data-price', p.price);
+        el.setAttribute('data-cat', p.cat);
+        el.innerHTML =
+          '<div class="flex items-start justify-between gap-1">' +
+            '<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center shrink-0">' +
+              '<span class="material-symbols-outlined text-[18px] text-secondary">' + esc(p.icon || 'inventory_2') + '</span>' +
+            '</div>' +
+            '<span class="shrink-0 px-1.5 py-0.5 rounded-full ' + st.cls + ' font-label-sm text-[9px] uppercase">' + esc(p.status || 'En stock') + '</span>' +
+          '</div>' +
+          '<h3 class="font-body-sm text-[12px] text-primary font-semibold leading-tight line-clamp-2">' + esc(p.name) + '</h3>' +
+          '<div class="flex items-center justify-between gap-1 pt-0.5">' +
+            '<span class="font-data-mono text-[13px] text-primary font-bold">' + KD.money(p.price) + '</span>' +
+            '<span class="font-label-sm text-[9px] text-on-surface-variant">' + (Number(p.stock) || 0) + ' en stock</span>' +
+          '</div>';
+        return el;
+      }
+
+      function rendreCatalogue() {
+        grid.innerHTML = '';
+        KD.getProducts().forEach(function (p) { grid.appendChild(tuile(p)); });
+        CATALOGUE = Array.prototype.slice.call(grid.children);
+      }
+
+      rendreCatalogue();
 
       var posSearch = document.getElementById('pos-search');
       var posEmpty = document.getElementById('pos-empty');
@@ -79,6 +119,7 @@ if (!y) return;
         btn.addEventListener('click', function () {
           opActif = btn.getAttribute('data-op');
           colorerSel(opBtns, 'data-op', opActif);
+          setAction(opActif === 'vente' ? null : opActif);
           sauverEtat();
         });
       });
@@ -96,6 +137,8 @@ if (!y) return;
       var cartTotal = document.getElementById('cart-total');
       var fxNote = document.getElementById('fx-note');
       var checkout = document.getElementById('checkout');
+      var actionAmountRow = document.getElementById('action-amount-row');
+      var actionAmount = document.getElementById('action-amount');
 
       /* Le catalogue est en dollars ; le client choisit la devise dans
          laquelle la vente est encaissée. Le taux vient de KD (réglages). */
@@ -146,6 +189,24 @@ if (!y) return;
         });
       }
 
+      /* Entrée / sortie d'argent : alternative a la vente. Le bouton du bas
+         enregistre alors un mouvement au lieu d'encaisser le panier. */
+      function setAction(val) {
+        actionActif = val;
+        colorerAction(actionActif);
+        if (actionAmountRow) {
+          actionAmountRow.classList.toggle('hidden', !actionActif);
+          actionAmountRow.classList.toggle('flex', !!actionActif);
+          if (!actionActif && actionAmount) actionAmount.value = '';
+        }
+        if (checkout) {
+          checkout.textContent = actionActif === 'entree' ? "Enregistrer l'entrée"
+            : actionActif === 'sortie' ? 'Enregistrer la sortie'
+            : 'Encaisser la vente';
+          checkout.disabled = actionActif ? false : cart.length === 0;
+        }
+      }
+
       /* -------------------------------------------- synthese de la rubrique
          Trois montants suivent le selecteur Beauty / Art : articles en stock,
          valeur du stock et ventes encaissees aujourd'hui. */
@@ -190,13 +251,17 @@ if (!y) return;
       }
 
       /* Le stock peut changer depuis l'onglet Stocks, une vente d'ici : la
-         synthese se remet a jour sans recharger la vue. */
+         synthese se remet a jour sans recharger la vue. Le catalogue suit les
+         produits ajoutes, modifies ou supprimes. */
       function rafraichirSynthese() { majSynthese(); }
+      function rafraichirCatalogue() { rendreCatalogue(); applyFilters(); }
       document.addEventListener('kd:products', rafraichirSynthese);
       document.addEventListener('kd:sales', rafraichirSynthese);
+      document.addEventListener('kd:products', rafraichirCatalogue);
       nettoyerSynthese = function () {
         document.removeEventListener('kd:products', rafraichirSynthese);
         document.removeEventListener('kd:sales', rafraichirSynthese);
+        document.removeEventListener('kd:products', rafraichirCatalogue);
       };
 
       function money(n) {
@@ -264,7 +329,7 @@ if (!y) return;
         /* Le taux n'a de sens que si la vente est en francs congolais. */
         fxNote.textContent = KD.fxLabel();
         fxNote.classList.toggle('hidden', currency !== 'CDF');
-        checkout.disabled = cart.length === 0;
+        checkout.disabled = actionActif ? false : cart.length === 0;
         sauverEtat();
       }
 
@@ -326,12 +391,7 @@ if (!y) return;
       var actionBtns = Array.prototype.slice.call(document.querySelectorAll('.pay-action-btn'));
       actionBtns.forEach(function (btn) {
         btn.addEventListener('click', function () {
-          actionActif = btn.getAttribute('data-action');
-          colorerAction(actionActif);
-          var action = actionActif;
-          if (typeof KD.toast === 'function') {
-            KD.toast(action === 'entree' ? "Entrée d'argent" : "Sortie d'argent", 'sync');
-          }
+          setAction(btn.getAttribute('data-action'));
           sauverEtat();
         });
       });
@@ -348,6 +408,30 @@ if (!y) return;
       });
 
       checkout.addEventListener('click', function () {
+        /* Entrée / sortie d'argent : on enregistre un mouvement, jamais une
+           vente, et le panier en cours reste intact. */
+        if (actionActif) {
+          var saisie = actionAmount ? parseFloat(actionAmount.value) : NaN;
+          if (!isFinite(saisie) || saisie <= 0) {
+            if (typeof KD.toast === 'function') KD.toast('Saisissez un montant supérieur à 0', 'error');
+            if (actionAmount) actionAmount.focus();
+            return;
+          }
+          var enregistre = typeof KD.addMovement === 'function'
+            && KD.addMovement({ type: actionActif, amountUsd: saisie });
+          if (!enregistre) {
+            if (typeof KD.toast === 'function') KD.toast("Mouvement non enregistré", 'error');
+            return;
+          }
+          if (actionAmount) actionAmount.value = '';
+          if (typeof KD.toast === 'function') {
+            KD.toast((actionActif === 'entree' ? "Entrée d'argent" : "Sortie d'argent")
+              + ' de ' + money(saisie) + ' enregistrée', 'sync');
+          }
+          sauverEtat();
+          return;
+        }
+
         if (!cart.length) return;
         var n = count();
         var montantUsd = total();
@@ -401,7 +485,7 @@ if (!y) return;
         }
         if (['entree', 'sortie'].indexOf(etat.action) !== -1) {
           actionActif = etat.action;
-          colorerAction(actionActif);
+          setAction(actionActif);
         }
         if (Array.isArray(etat.cart)) {
           cart = etat.cart.filter(function (l) {
@@ -411,6 +495,9 @@ if (!y) return;
         applyFilters();
       }
 
+      /* Premier affichage : sans cela le message « Aucun produit » reste
+         masque et une recherche restauree ne filtre pas les tuiles. */
+      applyFilters();
       renderCart();
       majSynthese();
     }

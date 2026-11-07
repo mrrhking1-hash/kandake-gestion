@@ -112,6 +112,10 @@ Aucun article sélectionné.
 <button class="cur-btn px-2.5 h-7 rounded-md text-on-surface-variant font-label-sm text-[11px] font-bold" data-cur="CDF" type="button" aria-pressed="false">FC</button>
 </div>
 </div>
+<div class="hidden items-center gap-2 h-11 px-3 rounded-lg bg-surface-container-low" id="action-amount-row">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant shrink-0">paid</span>
+<input class="w-full bg-transparent outline-none font-body-md text-body-md text-primary placeholder:text-outline-variant" id="action-amount" placeholder="Montant en USD ($)" type="number" min="0" step="0.01" inputmode="decimal">
+</div>
 <div class="grid grid-cols-2 gap-2">
 <button class="pay-action-btn w-full h-11 rounded-lg bg-success text-on-primary font-label-md text-label-md active:scale-[0.98] transition-transform" data-action="entree" type="button">Entrée d'argent</button>
 <button class="pay-action-btn w-full h-11 rounded-lg bg-error text-on-primary font-label-md text-label-md active:scale-[0.98] transition-transform" data-action="sortie" type="button">Sortie d'argent</button>

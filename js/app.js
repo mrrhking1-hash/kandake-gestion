@@ -273,6 +273,34 @@
     }, 0);
   };
 
+  /* ---------------------------------------------------- mouvements de caisse
+     Entrees et sorties d'argent saisies depuis la caisse. Journal distinct des
+     ventes : un mouvement ne doit jamais gonfler le chiffre d'affaires. */
+  var MOVEMENTS_KEY = 'kandake.mouvements';
+  var MOVEMENTS_MAX = 300;
+
+  KD.getMovements = function () {
+    try {
+      var list = JSON.parse(window.localStorage.getItem(MOVEMENTS_KEY) || '[]');
+      return Array.isArray(list) ? list : [];
+    } catch (e) { return []; }
+  };
+
+  /* mouvement : { type: 'entree' | 'sortie', amountUsd } */
+  KD.addMovement = function (mouvement) {
+    var type = mouvement && mouvement.type === 'sortie' ? 'sortie' : 'entree';
+    var montant = Number(mouvement && mouvement.amountUsd);
+    if (!isFinite(montant) || montant <= 0) return false;
+    var list = KD.getMovements();
+    list.unshift({ date: jourLocal(), type: type, amountUsd: montant });
+    if (list.length > MOVEMENTS_MAX) list.length = MOVEMENTS_MAX;
+    try {
+      window.localStorage.setItem(MOVEMENTS_KEY, JSON.stringify(list));
+    } catch (e) { return false; }
+    document.dispatchEvent(new CustomEvent('kd:movements'));
+    return true;
+  };
+
   /* ------------------------------------------------------- devises & taux
      Le catalogue, les stocks et le solde de trésorerie sont en dollars (USD).
      Le taux est modifiable dans les réglages et mémorisé sur l'appareil ; il

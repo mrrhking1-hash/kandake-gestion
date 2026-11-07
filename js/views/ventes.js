@@ -89,8 +89,41 @@
           KD.toast('Re\u00e7u ' + ref + ' pr\u00eat \u00e0 l\'envoi WhatsApp', 'receipt_long');
         });
 
+        /* Export reel : les encaissements du journal local (kandake.sales)
+           sont mis en CSV et telecharges. Journal vide : aucun fichier. */
         document.getElementById('export').addEventListener('click', function () {
-          KD.toast('Journal des ventes export\u00e9 (' + KPI[kpiKey].label.toLowerCase() + ')', 'download');
+          var ventes = typeof KD.getSales === 'function' ? KD.getSales() : [];
+          if (!ventes.length) {
+            KD.toast('Aucune vente à exporter', 'download');
+            return;
+          }
+          var lignes = ['date;total_usd;devise;beauty_usd;art_usd;articles'];
+          ventes.forEach(function (v) {
+            var rub = v.rubriques || {};
+            lignes.push([
+              v.date || '',
+              Number(v.totalUsd) || 0,
+              v.currency || 'USD',
+              Number(rub.Beauty) || 0,
+              Number(rub.Art) || 0,
+              Number(v.lignes) || 0
+            ].join(';'));
+          });
+          var d = new Date();
+          var nom = 'kandake-ventes-' + d.getFullYear() + '-' +
+            ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+            ('0' + d.getDate()).slice(-2) + '.csv';
+          var blob = new Blob(['\ufeff' + lignes.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+          var url = URL.createObjectURL(blob);
+          var lien = document.createElement('a');
+          lien.href = url;
+          lien.download = nom;
+          document.body.appendChild(lien);
+          lien.click();
+          document.body.removeChild(lien);
+          setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+          KD.toast('Journal des ventes exporté (' + ventes.length +
+            (ventes.length > 1 ? ' ventes)' : ' vente)'), 'download');
         });
 
         /* Restauration apres rechargement : periode, indicateur et statut
