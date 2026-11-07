@@ -57,14 +57,23 @@
 
         var monthMovements = KD.getMovements().filter(function (m) { return m && inPeriod(m.date); });
         var expenses = { Beauty: 0, Art: 0, General: 0 };
+        var operatingExpenses = { Beauty: 0, Art: 0 };
         monthMovements.filter(function (m) { return m.type === 'sortie'; }).forEach(function (m) {
           var cat = m.category === 'Beauty' ? 'Beauty' : m.category === 'Art' ? 'Art' : 'General';
-          expenses[cat] += Number(m.amountUsd) || 0;
+          var amount = Number(m.amountUsd) || 0;
+          expenses[cat] += amount;
+          /* Les paiements de stock apparaissent dans les sorties de trésorerie,
+             mais leur coût est déjà inclus dans la marge lors de la vente. */
+          if (!m.orderId && cat !== 'General') operatingExpenses[cat] += amount;
         });
         set('fin-dep-total', money(expenses.Beauty + expenses.Art + expenses.General));
         set('fin-dep-beauty', money(expenses.Beauty));
         set('fin-dep-art', money(expenses.Art));
         set('fin-dep-note', (expenses.General ? money(expenses.General) + ' de dépenses générales non réparties. ' : '') + 'Les sorties sans activité enregistrées auparavant restent classées en général.');
+        var purchaseDue = typeof KD.getPurchaseOrders === 'function' ? KD.getPurchaseOrders().reduce(function (sum, order) {
+          return order.status === 'annulee' ? sum : sum + Math.max(0, (Number(order.totalUsd) || 0) - (Number(order.paidUsd) || 0));
+        }, 0) : 0;
+        set('fin-purchase-due', money(purchaseDue));
 
         var inventory = { Beauty: 0, Art: 0 };
         var withoutCost = { Beauty: 0, Art: 0 };
@@ -89,9 +98,9 @@
             else gross[cat] += (Number(item.prixVenteUsd) - Number(item.prixAchatUsd)) * qty;
           });
         });
-        set('fin-benefice-beauty', money(gross.Beauty - expenses.Beauty));
-        set('fin-benefice-art', money(gross.Art - expenses.Art));
-        set('fin-benefice-note', 'Marge brute connue moins dépenses classées par activité. ' + salesWithoutCost + ' ticket(s)/ligne(s) sans coût d’achat connu exclus; ' + money(expenses.General) + ' de dépenses générales ne sont pas répartis. Estimation partielle.');
+        set('fin-benefice-beauty', money(gross.Beauty - operatingExpenses.Beauty));
+        set('fin-benefice-art', money(gross.Art - operatingExpenses.Art));
+        set('fin-benefice-note', 'Marge brute connue moins dépenses de fonctionnement classées. ' + salesWithoutCost + ' ticket(s)/ligne(s) sans coût d’achat connu exclus; ' + money(expenses.General) + ' de dépenses générales ne sont pas répartis. Estimation partielle.');
 
         var list = document.getElementById('fin-movements');
         var rows = monthMovements.slice(0, 8);
@@ -125,6 +134,7 @@
       });
       on(document, 'kd:sales', render);
       on(document, 'kd:movements', render);
+      on(document, 'kd:purchase-orders', render);
       on(document, 'kd:products', render);
       setType('entree'); render();
       this.unmount = function () { listeners.forEach(function (remove) { remove(); }); };

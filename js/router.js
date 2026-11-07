@@ -25,6 +25,8 @@
                 desc: 'Configuration de la boutique, de la caisse, de l\u2019\u00e9quipe et de la PWA Kandake.' },
     clients:  { file: 'views/clients.html', script: 'js/views/clients.js', label: 'Clients', icon: 'group', path: 'clients',
                 hidden: true, desc: 'Coordonnées, crédit et dépenses des clients Kandake.' },
+    commandes: { file: 'views/commandes.html', script: 'js/views/commandes.js', label: 'Commandes', icon: 'local_shipping', path: 'purchases',
+                hidden: true, desc: 'Approvisionnement Beauty, paiements fournisseurs et réception en stock.' },
     /* Vue hors navigation : la connexion occupe tout l'ecran (bare) et ne
        figure ni dans la barre du bas ni dans l'ordre de prechargement. */
     connexion: { file: 'views/connexion.html', script: 'js/views/connexion.js', label: 'Connexion', icon: 'login', path: 'login',

@@ -431,6 +431,144 @@
     return true;
   };
 
+  /* ------------------------------------------------------- commandes fournisseur
+     Les commandes et leurs paiements restent distincts : la commande crée un
+     engagement fournisseur, seuls les paiements réels sortent de la trésorerie.
+     La réception ajoute les quantités et leur coût rendu (achat + transport)
+     au stock; les quantités déjà reçues ne peuvent pas être ajoutées deux fois. */
+  var PURCHASE_ORDERS_KEY = 'kandake.commandes-fournisseurs';
+  var PURCHASE_ORDERS_MAX = 300;
+  KD.getPurchaseOrders = function () {
+    try {
+      var list = JSON.parse(window.localStorage.getItem(PURCHASE_ORDERS_KEY) || '[]');
+      return Array.isArray(list) ? list : [];
+    } catch (e) { return []; }
+  };
+
+  KD.createPurchaseOrder = function (data) {
+    var fournisseur = String(data && data.supplier || '').trim();
+    var freight = Number(data && data.freightUsd);
+    var paid = Number(data && data.paidUsd || 0);
+    var items = Array.isArray(data && data.items) ? data.items : [];
+    if (!fournisseur || !items.length || !isFinite(freight) || freight < 0 || !isFinite(paid) || paid < 0) return null;
+    var products = KD.getProducts();
+    var orderItems = [];
+    var merchandiseTotal = 0;
+    for (var i = 0; i < items.length; i++) {
+      var row = items[i] || {};
+      var product = products.filter(function (p) { return p.id === row.pid; })[0];
+      var qty = Number(row.qty);
+      var cost = Number(row.unitCostUsd);
+      if (!product || product.cat !== 'Beauty' || !isFinite(qty) || qty <= 0 || Math.floor(qty) !== qty || !isFinite(cost) || cost <= 0) return null;
+      var lineTotal = qty * cost;
+      merchandiseTotal += lineTotal;
+      orderItems.push({ pid: product.id, name: product.name, category: 'Beauty', qtyOrdered: qty,
+        qtyReceived: 0, unitCostUsd: cost, lineTotalUsd: lineTotal });
+    }
+    var total = merchandiseTotal + freight;
+    if (paid > total) return null;
+    var id = 'CMD-' + Date.now().toString(36).toUpperCase();
+    orderItems.forEach(function (item) {
+      item.allocatedFreightUsd = merchandiseTotal ? freight * item.lineTotalUsd / merchandiseTotal : freight / orderItems.length;
+      item.landedUnitCostUsd = (item.lineTotalUsd + item.allocatedFreightUsd) / item.qtyOrdered;
+    });
+    var order = { id: id, supplier: fournisseur, category: 'Beauty', date: jourLocal(), items: orderItems,
+      merchandiseUsd: merchandiseTotal, freightUsd: freight, totalUsd: total, paidUsd: paid,
+      status: 'commandee', receptions: [] };
+    var orders = KD.getPurchaseOrders();
+    orders.unshift(order);
+    if (orders.length > PURCHASE_ORDERS_MAX) orders.length = PURCHASE_ORDERS_MAX;
+    var movements = KD.getMovements();
+    if (paid > 0) movements.unshift({ date: jourLocal(), type: 'sortie', amountUsd: paid, category: 'Beauty',
+      description: 'Paiement commande ' + id + ' · ' + fournisseur, orderId: id });
+    if (movements.length > MOVEMENTS_MAX) movements.length = MOVEMENTS_MAX;
+    var oldOrders = window.localStorage.getItem(PURCHASE_ORDERS_KEY);
+    var oldMovements = window.localStorage.getItem(MOVEMENTS_KEY);
+    try {
+      window.localStorage.setItem(PURCHASE_ORDERS_KEY, JSON.stringify(orders));
+      if (paid > 0) window.localStorage.setItem(MOVEMENTS_KEY, JSON.stringify(movements));
+    } catch (e) {
+      try { if (oldOrders == null) window.localStorage.removeItem(PURCHASE_ORDERS_KEY); else window.localStorage.setItem(PURCHASE_ORDERS_KEY, oldOrders); } catch (ignore) {}
+      try { if (oldMovements == null) window.localStorage.removeItem(MOVEMENTS_KEY); else window.localStorage.setItem(MOVEMENTS_KEY, oldMovements); } catch (ignore2) {}
+      return null;
+    }
+    document.dispatchEvent(new CustomEvent('kd:purchase-orders'));
+    if (paid > 0) document.dispatchEvent(new CustomEvent('kd:movements'));
+    return order;
+  };
+
+  KD.payPurchaseOrder = function (id, amountUsd) {
+    var amount = Number(amountUsd);
+    var orders = KD.getPurchaseOrders();
+    var order = orders.filter(function (o) { return o.id === id; })[0];
+    if (!order || order.status === 'annulee' || !isFinite(amount) || amount <= 0) return false;
+    var due = Math.max(0, Number(order.totalUsd) - Number(order.paidUsd || 0));
+    if (amount > due) return false;
+    var movements = KD.getMovements();
+    movements.unshift({ date: jourLocal(), type: 'sortie', amountUsd: amount, category: order.category || 'Beauty',
+      description: 'Paiement commande ' + order.id + ' · ' + order.supplier, orderId: order.id });
+    if (movements.length > MOVEMENTS_MAX) movements.length = MOVEMENTS_MAX;
+    order.paidUsd = (Number(order.paidUsd) || 0) + amount;
+    var oldOrders = window.localStorage.getItem(PURCHASE_ORDERS_KEY);
+    var oldMovements = window.localStorage.getItem(MOVEMENTS_KEY);
+    try {
+      window.localStorage.setItem(PURCHASE_ORDERS_KEY, JSON.stringify(orders));
+      window.localStorage.setItem(MOVEMENTS_KEY, JSON.stringify(movements));
+    } catch (e) {
+      try { if (oldOrders == null) window.localStorage.removeItem(PURCHASE_ORDERS_KEY); else window.localStorage.setItem(PURCHASE_ORDERS_KEY, oldOrders); } catch (ignore) {}
+      try { if (oldMovements == null) window.localStorage.removeItem(MOVEMENTS_KEY); else window.localStorage.setItem(MOVEMENTS_KEY, oldMovements); } catch (ignore2) {}
+      return false;
+    }
+    document.dispatchEvent(new CustomEvent('kd:purchase-orders'));
+    document.dispatchEvent(new CustomEvent('kd:movements'));
+    return true;
+  };
+
+  KD.receivePurchaseOrder = function (id, receivedItems) {
+    var orders = KD.getPurchaseOrders();
+    var order = orders.filter(function (o) { return o.id === id; })[0];
+    if (!order || order.status === 'recue' || order.status === 'annulee' || !Array.isArray(receivedItems)) return false;
+    var products = KD.getProducts();
+    var changed = [];
+    var hasReceipt = false;
+    for (var i = 0; i < receivedItems.length; i++) {
+      var receipt = receivedItems[i] || {};
+      var qty = Number(receipt.qty);
+      var line = order.items.filter(function (item) { return item.pid === receipt.pid; })[0];
+      if (!line || !isFinite(qty) || qty < 0 || Math.floor(qty) !== qty || qty > line.qtyOrdered - line.qtyReceived) return false;
+      if (!qty) continue;
+      var product = products.filter(function (p) { return p.id === line.pid; })[0];
+      if (!product) return false;
+      var previousStock = Number(product.stock) || 0;
+      var previousCost = product.purchasePrice == null ? null : Number(product.purchasePrice);
+      var nextStock = previousStock + qty;
+      product.purchasePrice = previousStock > 0 && previousCost != null
+        ? ((previousStock * previousCost) + (qty * line.landedUnitCostUsd)) / nextStock
+        : line.landedUnitCostUsd;
+      product.stock = nextStock;
+      product.status = KD.stockStatus(product.stock, product.max);
+      line.qtyReceived += qty;
+      changed.push({ pid: line.pid, qty: qty });
+      hasReceipt = true;
+    }
+    if (!hasReceipt) return false;
+    var fullyReceived = order.items.every(function (item) { return item.qtyReceived >= item.qtyOrdered; });
+    order.status = fullyReceived ? 'recue' : 'partielle';
+    order.receptions = Array.isArray(order.receptions) ? order.receptions : [];
+    order.receptions.push({ date: jourLocal(), items: changed });
+    var oldOrders = window.localStorage.getItem(PURCHASE_ORDERS_KEY);
+    var oldProducts = window.localStorage.getItem(PRODUCTS_KEY);
+    try { window.localStorage.setItem(PURCHASE_ORDERS_KEY, JSON.stringify(orders)); }
+    catch (e) { return false; }
+    if (!KD.saveProducts(products)) {
+      try { if (oldOrders == null) window.localStorage.removeItem(PURCHASE_ORDERS_KEY); else window.localStorage.setItem(PURCHASE_ORDERS_KEY, oldOrders); } catch (ignore) {}
+      try { if (oldProducts == null) window.localStorage.removeItem(PRODUCTS_KEY); else window.localStorage.setItem(PRODUCTS_KEY, oldProducts); } catch (ignore2) {}
+      return false;
+    }
+    document.dispatchEvent(new CustomEvent('kd:purchase-orders'));
+    return true;
+  };
+
   /* ------------------------------------------------------- devises & taux
      Le catalogue, les stocks et le solde de trésorerie sont en dollars (USD).
      Le taux est modifiable dans les réglages et mémorisé sur l'appareil ; il
