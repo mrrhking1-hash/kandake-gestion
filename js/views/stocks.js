@@ -157,8 +157,10 @@
               '<span class="font-data-mono text-[11px] text-on-surface-variant shrink-0">' + p.stock + ' en stock</span>' +
             '</div>' +
           '</div>' +
-          '<div class="flex flex-col items-end gap-1 shrink-0">' +
-            '<span class="font-data-mono text-data-mono text-primary font-bold">' + KD.money(p.price) + '</span>' +
+          '<div class="flex flex-col items-end gap-0.5 shrink-0">' +
+            '<span class="font-label-sm text-[9px] leading-none text-on-surface-variant uppercase tracking-wide">Valeur stock</span>' +
+            '<span class="font-data-mono text-[13px] leading-tight text-primary font-bold">' + KD.money((Number(p.stock) || 0) * (Number(p.price) || 0)) + '</span>' +
+            '<span class="font-data-mono text-[10px] leading-tight text-secondary font-bold">PU : ' + KD.money(p.price) + '</span>' +
             '<div class="flex items-center gap-1">' +
               '<button class="qty-btn w-7 h-7 rounded-md bg-surface-container flex items-center justify-center text-on-surface active:scale-90" data-step="-1" type="button" aria-label="Retirer une unité de ' + esc(p.name) + '">' +
                 '<span class="material-symbols-outlined text-[14px]">remove</span>' +
