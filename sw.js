@@ -8,7 +8,7 @@
  *     et Google Fonts sont chargés à l'exécution : sans cache l'app est illisible hors-ligne)
  */
 
-const VERSION = 'v42';
+const VERSION = 'v43';
 const SHELL_CACHE = `kandake-shell-${VERSION}`;
 const RUNTIME_CACHE = `kandake-runtime-${VERSION}`;
 const OFFLINE_URL = 'hors-ligne.html';
@@ -20,6 +20,7 @@ const SHELL_ASSETS = [
   OFFLINE_URL,
   'manifest.json',
   'css/app.css',
+  'fonts/material-symbols-outlined.woff2',
   'js/app.js',
   'js/router.js',
   'js/pull-refresh.js',
