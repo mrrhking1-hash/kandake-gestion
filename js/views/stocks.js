@@ -96,6 +96,7 @@
       var fStock = document.getElementById('ed-stock');
       var fMax = document.getElementById('ed-max');
       var fStatus = document.getElementById('ed-status');
+      if (fStatus) fStatus.disabled = true;
       var edError = document.getElementById('ed-error');
       var edErrorText = document.getElementById('ed-error-text');
       var saveText = document.getElementById('ed-save-text');

@@ -137,6 +137,18 @@
     'Rupture': { cls: 'bg-surface-variant text-on-surface-variant', bar: 'bg-surface-variant' }
   };
 
+  /* L'etat est derive de la quantite et du seuil d'alerte : 0 = rupture,
+     jusqu'a 15 % du seuil = critique, jusqu'au seuil = faible. */
+  KD.stockStatus = function (stock, seuil) {
+    var qte = Number(stock);
+    var alerte = Number(seuil);
+    if (!isFinite(qte) || qte <= 0) return 'Rupture';
+    if (!isFinite(alerte) || alerte <= 0) alerte = 1;
+    if (qte <= alerte * 0.15) return 'Critique';
+    if (qte <= alerte) return 'Faible';
+    return 'En stock';
+  };
+
   KD.defaultProducts = function () {
     return [
       { id: 'p1', name: 'Lace Frontal 22" HD', sku: 'KDK-P-0012', cat: 'Beauty', price: 420, stock: 3, max: 25, status: 'Critique', icon: 'face_retouching_natural' },
@@ -176,12 +188,20 @@
       if (raw) list = JSON.parse(raw);
     } catch (e) { list = null; }
     if (!Array.isArray(list)) list = KD.defaultProducts();
-    list.forEach(function (p) { if (p && typeof p === 'object') p.cat = veriteCategorie(p); });
+    list.forEach(function (p) {
+      if (p && typeof p === 'object') {
+        p.cat = veriteCategorie(p);
+        p.status = KD.stockStatus(p.stock, p.max);
+      }
+    });
     return list;
   };
 
   KD.saveProducts = function (list) {
     try {
+      list.forEach(function (p) {
+        if (p && typeof p === 'object') p.status = KD.stockStatus(p.stock, p.max);
+      });
       window.localStorage.setItem(PRODUCTS_KEY, JSON.stringify(list));
       document.dispatchEvent(new CustomEvent('kd:products'));
       return true;
@@ -199,6 +219,7 @@
     var found = list.filter(function (p) { return p.id === id; })[0];
     if (!found) return false;
     Object.keys(patch).forEach(function (k) { found[k] = patch[k]; });
+    found.status = KD.stockStatus(found.stock, found.max);
     return KD.saveProducts(list);
   };
 
@@ -211,6 +232,7 @@
       name: 'Nouveau produit'
     });
     Object.keys(data || {}).forEach(function (k) { list[0][k] = data[k]; });
+    list[0].status = KD.stockStatus(list[0].stock, list[0].max);
     KD.saveProducts(list);
     return list[0];
   };
@@ -224,6 +246,51 @@
 
   KD.resetProducts = function () {
     try { window.localStorage.removeItem(PRODUCTS_KEY); } catch (e) { /* ignore */ }
+  };
+
+  /* Encaisse une vente seulement si toutes les quantites sont disponibles.
+     Si l'enregistrement du journal echoue, restaure les quantites precedentes. */
+  KD.commitSaleWithStock = function (lignes, vente) {
+    var demandee = Object.create(null);
+    var invalide = !Array.isArray(lignes);
+    (lignes || []).forEach(function (ligne) {
+      var id = ligne && String(ligne.pid || '');
+      var qte = Number(ligne && ligne.qty);
+      if (!id || !isFinite(qte) || qte <= 0 || Math.floor(qte) !== qte) {
+        invalide = true;
+        return;
+      }
+      demandee[id] = (demandee[id] || 0) + qte;
+    });
+    var ids = Object.keys(demandee);
+    if (invalide || !ids.length) return { ok: false, message: 'Panier invalide.' };
+
+    var produits = KD.getProducts();
+    for (var i = 0; i < ids.length; i++) {
+      var produit = produits.filter(function (p) { return p && p.id === ids[i]; })[0];
+      if (!produit) return { ok: false, message: 'Un produit du panier n’existe plus.' };
+      var stock = Number(produit.stock) || 0;
+      if (stock < demandee[ids[i]]) {
+        return { ok: false, message: 'Stock insuffisant pour ' + produit.name + ' (' + stock + ' disponible).'};
+      }
+      produit.stock = stock - demandee[ids[i]];
+      produit.status = KD.stockStatus(produit.stock, produit.max);
+    }
+
+    var ancien = null;
+    try { ancien = window.localStorage.getItem(PRODUCTS_KEY); } catch (e) {}
+    if (!KD.saveProducts(produits)) {
+      return { ok: false, message: 'Stock non enregistré : vérifiez le stockage de l’appareil.' };
+    }
+    if (!KD.addSale || !KD.addSale(vente)) {
+      try {
+        if (ancien === null) window.localStorage.removeItem(PRODUCTS_KEY);
+        else window.localStorage.setItem(PRODUCTS_KEY, ancien);
+      } catch (e) {}
+      document.dispatchEvent(new CustomEvent('kd:products'));
+      return { ok: false, message: 'Vente non enregistrée ; le stock a été restauré.' };
+    }
+    return { ok: true };
   };
 
   /* ---------------------------------------------------------------- ventes

@@ -334,7 +334,16 @@ if (!y) return;
       }
 
       function add(pid, name, price) {
+        var produit = KD.getProduct(pid);
+        if (!produit) {
+          if (typeof KD.toast === 'function') KD.toast('Produit introuvable dans le stock', 'error');
+          return;
+        }
         var line = cart.filter(function (l) { return l.pid === pid; })[0];
+        if ((line ? line.qty : 0) + 1 > (Number(produit.stock) || 0)) {
+          if (typeof KD.toast === 'function') KD.toast('Stock insuffisant pour ' + name, 'error');
+          return;
+        }
         if (line) line.qty += 1;
         else cart.push({ pid: pid, name: name, price: price, qty: 1, cat: rubriqueDe(KD.getProduct(pid)) });
         renderCart();
@@ -358,7 +367,16 @@ if (!y) return;
         var row = btn.closest('[data-line]');
         var line = cart.filter(function (l) { return l.pid === row.getAttribute('data-line'); })[0];
         if (!line) return;
-        line.qty += parseInt(btn.getAttribute('data-step'), 10);
+        var pas = parseInt(btn.getAttribute('data-step'), 10);
+        if (pas > 0) {
+          var produit = KD.getProduct(line.pid);
+          var stock = produit ? (Number(produit.stock) || 0) : 0;
+          if (!produit || line.qty + pas > stock) {
+            if (typeof KD.toast === 'function') KD.toast('Stock insuffisant pour ' + line.name, 'error');
+            return;
+          }
+        }
+        line.qty += pas;
         if (line.qty <= 0) cart = cart.filter(function (l) { return l.pid !== line.pid; });
         renderCart();
       });
@@ -444,13 +462,17 @@ if (!y) return;
           var rub = (l.cat === 'Art' || rubriqueDe(KD.getProduct(l.pid)) === 'Art') ? 'Art' : 'Beauty';
           parRubrique[rub] += l.price * l.qty;
         });
-        if (typeof KD.addSale === 'function') {
-          KD.addSale({
+        var resultat = KD.commitSaleWithStock(cart.map(function (l) {
+          return { pid: l.pid, qty: l.qty };
+        }), {
             totalUsd: montantUsd,
             currency: currency,
             rubriques: parRubrique,
             lignes: n
           });
+        if (!resultat || !resultat.ok) {
+          if (typeof KD.toast === 'function') KD.toast(resultat ? resultat.message : 'Vente non enregistrée', 'error');
+          return;
         }
 
         if (typeof KD.toast === 'function') {
