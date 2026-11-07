@@ -553,19 +553,25 @@ var title = document.getElementById('page-title');
           '<p class="mt-4 font-label-sm text-[10px] uppercase tracking-[0.18em] text-secondary font-bold">Mise à jour</p>' +
           '<h2 id="pwa-update-title" class="mt-1 font-headline-sm text-headline-sm text-primary">Nouvelle version disponible</h2>' +
           '<button type="button" data-act="reload" class="mt-5 w-full h-12 rounded-xl bg-primary text-on-primary font-label-lg font-bold shadow-md active:scale-[0.98] transition-transform">Mettre à jour</button>' +
+          '<div class="pwa-update-progress mt-4" role="progressbar" aria-label="Installation de la mise à jour" aria-valuetext="Installation en cours">' +
+            '<div class="pwa-update-track"><div class="pwa-update-bar"></div></div>' +
+            '<p class="mt-2 font-label-sm text-[11px] text-on-surface-variant">Installation en cours…</p>' +
+          '</div>' +
           '<button type="button" data-act="later" class="mt-2 w-full h-10 rounded-xl text-on-surface-variant font-label-md active:scale-[0.98] transition-transform">Plus tard</button>' +
           '<p class="mt-4 pt-3 border-t border-surface-variant font-label-sm text-[10px] tracking-wide text-on-surface-variant">© Robart&amp;design 2026</p>' +
         '</section>';
       document.body.appendChild(box);
     }
     box.setAttribute('data-open', 'true');
+    box.setAttribute('data-installing', 'false');
 
     var btn = box.querySelector('[data-act="reload"]');
     btn.disabled = false;
     btn.textContent = 'Mettre \u00e0 jour';
     btn.onclick = function () {
       btn.disabled = true;
-      btn.textContent = 'Mise \u00e0 jour\u2026';
+      box.setAttribute('data-installing', 'true');
+      btn.textContent = 'Installation…';
       onReload();
     };
     box.querySelector('[data-act="later"]').onclick = function () {
@@ -593,7 +599,7 @@ var title = document.getElementById('page-title');
     var recharger = function () {
       if (fait) return;
       fait = true;
-      location.reload();
+      setTimeout(function () { location.reload(); }, 500);
     };
     navigator.serviceWorker.addEventListener('controllerchange', recharger);
     waiting.postMessage('skip-waiting');

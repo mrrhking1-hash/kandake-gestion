@@ -114,6 +114,29 @@ main.login-shell { min-height: 100vh; min-height: 100dvh; }
 }
 #pwa-prompt[data-open="true"] { display: flex; }
 #pwa-prompt .pwa-prompt-card { width: min(100%, 390px); }
+#pwa-prompt .pwa-update-progress { display: none; }
+#pwa-prompt[data-installing="true"] .pwa-update-progress { display: block; }
+#pwa-prompt[data-installing="true"] [data-act="later"] { display: none; }
+.pwa-update-track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(122, 89, 0, .14);
+}
+.pwa-update-bar {
+  width: 36%;
+  height: 100%;
+  border-radius: inherit;
+  background: #fdc340;
+  animation: pwa-update-slide 1.05s ease-in-out infinite;
+}
+@keyframes pwa-update-slide {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(310%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pwa-update-bar { width: 100%; animation: none; }
+}
 
 /* ---- Page de connexion : details qui font la différence ---- */
 /* Safari/Chrome repeignent les champs auto-completes en jaune : on force
