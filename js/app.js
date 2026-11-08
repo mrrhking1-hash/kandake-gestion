@@ -71,7 +71,10 @@
   };
 
   KD.saveUsers = function (list) {
+    if (!Array.isArray(list) || !list.length || !list.some(function (u) { return u && u.role === 'admin' && u.active !== false; })) return false;
     try {
+      var activeId = window.localStorage.getItem(AUTH_KEY);
+      if (activeId && !list.some(function (u) { return u && u.id === activeId && u.active !== false; })) return false;
       window.localStorage.setItem(USERS_KEY, JSON.stringify(list));
       return true;
     } catch (e) {
@@ -333,6 +336,8 @@
     var entree = {};
     Object.keys(vente || {}).forEach(function (k) { entree[k] = vente[k]; });
     if (!entree.date) entree.date = jourLocal();
+    if (!entree.numero) entree.numero = 'KDK-' + Date.now().toString().slice(-8);
+    if (!entree.timestamp) entree.timestamp = new Date().toISOString();
     list.unshift(entree);
     if (list.length > SALES_MAX) list.length = SALES_MAX;
     try {
@@ -922,24 +927,5 @@ var title = document.getElementById('page-title');
       if (document.readyState === 'complete') return;
       KD.registerSW();
     }, 3000);
-  }
-})();
-/* Masque la pastille de notifications en douceur après un court délai. */
-(function () {
-  'use strict';
-  function hideBadge() {
-    var b = document.getElementById('notif-badge');
-    if (!b) return;
-    setTimeout(function () {
-      b.classList.add('opacity-0');
-      setTimeout(function () {
-        b.style.display = 'none';
-      }, 300);
-    }, 4500);
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', hideBadge);
-  } else {
-    hideBadge();
   }
 })();

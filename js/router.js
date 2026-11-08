@@ -285,6 +285,7 @@
     var open = KD.isAuthenticated();
     if (!open && name !== AUTH_ROUTE) return AUTH_ROUTE;
     if (open && name === AUTH_ROUTE) return DEFAULT_ROUTE;
+    if (open) { var user = KD.currentUser && KD.currentUser(); if (user && user.role === 'vendeuse' && ['caisse', 'stocks', AUTH_ROUTE].indexOf(name) === -1) return 'caisse'; }
     return name;
   };
 
@@ -326,6 +327,36 @@
       profileSidebar.setAttribute('aria-hidden', 'false');
       if (profileButton) profileButton.setAttribute('aria-expanded', 'true');
     }
+    /* Une vendeuse reste sur la caisse et le catalogue, conformément au rôle affiché dans l'équipe. */
+    var connectedUser = KD.currentUser && KD.currentUser();
+    if (connectedUser && connectedUser.role === 'vendeuse') {
+      document.querySelectorAll('.nav-link').forEach(function (link) { if (['stocks', 'caisse'].indexOf(link.getAttribute('data-route')) === -1) link.classList.add('hidden'); });
+      document.querySelectorAll('[data-profile-page]').forEach(function (button) { button.classList.add('hidden'); });
+    }
+
+    /* La cloche regroupe les alertes qui nécessitent une action réelle. */
+    var notifButton = document.getElementById('notifications-button');
+    var notifPanel = document.getElementById('notifications-panel');
+    var notifContent = document.getElementById('notifications-content');
+    var notifBadge = document.getElementById('notif-badge');
+    function refreshNotifications() {
+      if (!notifContent) return;
+      var alerts = [];
+      (KD.getProducts ? KD.getProducts() : []).forEach(function (product) {
+        if (['Rupture', 'Critique', 'Faible'].indexOf(product.status) !== -1) alerts.push({ route: 'stocks', icon: 'inventory_2', title: product.name, text: product.status + ' · ' + (Number(product.stock) || 0) + ' unité(s)' });
+      });
+      (KD.getPurchaseOrders ? KD.getPurchaseOrders() : []).forEach(function (order) {
+        var due = Math.max(0, (Number(order.totalUsd) || 0) - (Number(order.paidUsd) || 0));
+        if (due > 0 && order.status !== 'annulee') alerts.push({ route: 'commandes', icon: 'payments', title: order.supplier || 'Fournisseur', text: 'Solde à payer · ' + KD.money(due, 'USD') });
+      });
+      notifBadge.textContent = alerts.length > 99 ? '99+' : String(alerts.length);
+      notifBadge.classList.toggle('hidden', alerts.length === 0);
+      notifContent.innerHTML = '';
+      if (!alerts.length) { notifContent.innerHTML = '<p class="text-sm text-on-surface-variant py-3">Aucune alerte pour le moment.</p>'; return; }
+      alerts.forEach(function (a) { var b=document.createElement('button'); b.type='button'; b.className='w-full text-left flex items-center gap-3 p-3 rounded-lg bg-surface-container-low'; b.innerHTML='<span class="material-symbols-outlined text-secondary">'+a.icon+'</span><span class="min-w-0"><strong class="block text-sm text-primary truncate"></strong><span class="block text-xs text-on-surface-variant"></span></span>'; b.querySelector('strong').textContent=a.title; b.querySelector('span span').textContent=a.text; b.addEventListener('click',function(){notifPanel.classList.add('hidden');KD.go(a.route);}); notifContent.appendChild(b); });
+    }
+    if (notifButton && notifPanel) { notifButton.addEventListener('click',function(){refreshNotifications();var show=notifPanel.classList.contains('hidden');notifPanel.classList.toggle('hidden',!show);notifButton.setAttribute('aria-expanded',String(show));}); var closeNotif=document.getElementById('notifications-close'); if(closeNotif)closeNotif.addEventListener('click',function(){notifPanel.classList.add('hidden');notifButton.setAttribute('aria-expanded','false');}); }
+    document.addEventListener('kd:products',refreshNotifications); document.addEventListener('kd:purchase-orders',refreshNotifications); refreshNotifications();
     KD.openProfileMenu = openProfileMenu;
     if (profileButton) profileButton.addEventListener('click', openProfileMenu);
     ['profile-close', 'profile-backdrop'].forEach(function (id) {
@@ -336,7 +367,7 @@
       button.addEventListener('click', function () {
         KD.profileReturnRoute = routeFromHash() || DEFAULT_ROUTE;
         closeProfileMenu();
-        go(button.getAttribute('data-profile-page'));
+        KD.go(button.getAttribute('data-profile-page'));
       });
     });
     document.addEventListener('click', function (event) {

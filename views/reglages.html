@@ -16,16 +16,16 @@
 </div>
 <div class="flex flex-col min-w-0 flex-1">
 <div class="flex items-center gap-space-xs flex-wrap">
-<h2 class="font-headline-md text-headline-sm text-primary tracking-tight truncate">Aïssatou Ba</h2>
+<h2 class="font-headline-md text-headline-sm text-primary tracking-tight truncate" id="settings-user-name">Compte</h2>
 <span class="bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm px-2 py-0.5 rounded-full uppercase tracking-wider inline-flex items-center gap-1">
 <span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
               Accès Royal VIP
             </span>
 </div>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Administratrice Propriétaire</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5"><span id="settings-user-role">Compte local</span></p>
 <div class="flex items-center gap-1.5 mt-2 bg-surface-container-low px-2.5 py-1 rounded-full w-fit">
 <span class="material-symbols-outlined text-secondary text-[15px]">cloud_done</span>
-<span class="font-label-sm text-[11px] text-on-surface font-medium truncate">Boutique &amp; PWA Synchronisées</span>
+<span class="font-label-sm text-[11px] text-on-surface font-medium truncate">Données enregistrées sur cet appareil</span>
 </div>
 </div>
 </div>
@@ -33,7 +33,7 @@
 <div class="grid grid-cols-3 gap-2 mt-4 pt-3 bg-surface-container-low rounded-lg p-2.5">
 <div class="text-center">
 <span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Version</span>
-<p class="font-data-mono text-body-sm font-semibold text-primary">v2.4.0 Édition</p>
+<p class="font-data-mono text-body-sm font-semibold text-primary">PWA locale</p>
 </div>
 <div class="text-center">
 <span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Réseau</span>
@@ -44,7 +44,7 @@
 </div>
 <div class="text-center">
 <span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Sécurité</span>
-<p class="font-data-mono text-body-sm font-semibold text-primary">Face ID actif</p>
+<p class="font-data-mono text-body-sm font-semibold text-primary">Mot de passe</p>
 </div>
 </div>
 </div>
@@ -63,7 +63,7 @@
 <p class="font-body-sm text-[11px] text-on-surface-variant">Signature légale &amp; univers d'exception</p>
 </div>
 </div>
-<button aria-label="Modifier établissement" class="w-8 h-8 flex items-center justify-center text-secondary active:scale-95 transition-transform">
+<button id="edit-store" aria-label="Modifier établissement" class="w-8 h-8 flex items-center justify-center text-secondary active:scale-95 transition-transform">
 <span class="material-symbols-outlined text-[20px]">edit_note</span>
 </button>
 </div>
@@ -72,8 +72,8 @@
 <div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
 <div class="min-w-0 pr-2">
 <p class="font-label-sm text-[10px] text-secondary uppercase font-bold tracking-wider">Maison Principale</p>
-<p class="font-body-md text-body-sm font-semibold text-primary truncate">Kandake Maison &amp; Beauté</p>
-<p class="font-body-sm text-[11px] text-on-surface-variant truncate">RCCM DK-2023-B-8942 • Almadies, Dakar</p>
+<p class="font-body-md text-body-sm font-semibold text-primary truncate" id="store-name">Kandake Maison &amp; Beauté</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant truncate" id="store-address">Adresse non renseignée</p>
 </div>
 <span class="material-symbols-outlined text-outline-variant text-[18px]">verified</span>
 </div>
@@ -137,20 +137,18 @@
 <div class="flex items-center gap-2.5 pr-2">
 <span class="material-symbols-outlined text-secondary text-[20px]">chat</span>
 <div>
-<p class="font-body-md text-body-sm font-semibold text-primary">Reçu WhatsApp automatique</p>
-<p class="font-body-sm text-[11px] text-on-surface-variant">Envoi instantané d'une facture ornée au client</p>
+<p class="font-body-md text-body-sm font-semibold text-primary">Proposer le partage du reçu</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Ouvre le partage du téléphone après encaissement</p>
 </div>
 </div>
-<button aria-checked="true" class="toggle-btn w-11 h-6 rounded-full bg-primary p-0.5 flex items-center justify-end transition-colors duration-200 cursor-pointer" role="switch" type="button">
+<button id="share-receipt-switch" aria-checked="false" class="toggle-btn w-11 h-6 rounded-full bg-surface-variant p-0.5 flex items-center justify-start transition-colors duration-200 cursor-pointer" role="switch" type="button">
 <span class="w-5 h-5 rounded-full bg-surface-container-lowest shadow-sm"></span>
 </button>
 </div>
 
-<!-- Auto Cash Closing -->
-<div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
-<div class="flex items-center gap-2.5 pr-2">
-<span class="material-symbols-outlined text-on-surface-variant text-[20px]">event_repeat</span>
-<div>
+<p class="text-xs text-on-surface-variant">Le total et les mouvements de caisse sont enregistrés dans Finances.</p>
+</div>
+</div>
 <!-- Section 3: Utilisateurs & Droits -->
 <div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
 <div class="flex items-center justify-between pb-space-sm">
@@ -193,25 +191,21 @@
 <!-- Offline Toggle -->
 <div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
 <div class="pr-2">
-<p class="font-body-md text-body-sm font-semibold text-primary">Forcer le Mode Déconnecté</p>
-<p class="font-body-sm text-[11px] text-on-surface-variant">Stockage local temporaire des transactions</p>
+<p class="font-body-md text-body-sm font-semibold text-primary">État de connexion</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Les ventes et opérations sont stockées sur cet appareil.</p>
 </div>
-<button aria-checked="false" class="toggle-btn w-11 h-6 rounded-full bg-surface-variant p-0.5 flex items-center justify-start transition-colors duration-200 cursor-pointer" id="offline-switch" role="switch" type="button">
-<span class="w-5 h-5 rounded-full bg-surface-container-lowest shadow-sm"></span>
-</button>
+<span id="network-status" class="text-xs font-semibold text-secondary">Vérification…</span>
 </div>
 <!-- Cache Memory Status -->
 <div class="p-space-sm bg-surface-container-low rounded-lg">
 <div class="flex items-center justify-between text-body-sm">
 <span class="font-body-md text-body-sm font-semibold text-primary">Cache catalogue local</span>
-<span class="font-data-mono text-body-sm text-secondary font-bold">100% synchronisé</span>
+<span class="font-data-mono text-body-sm text-secondary font-bold">Catalogue local</span>
 </div>
-<div class="w-full bg-surface-container h-1.5 rounded-full mt-2 overflow-hidden">
-<div class="bg-secondary h-full rounded-full w-full"></div>
-</div>
+
 <p class="font-body-sm text-[11px] text-on-surface-variant mt-1.5 flex items-center gap-1">
 <span class="material-symbols-outlined text-[13px] text-secondary">check_circle</span>
-            142 articles et leurs photographies HD préchargés
+            <span id="local-products-count">Catalogue enregistré sur cet appareil</span>
           </p>
 </div>
 <!-- App Update Button -->
@@ -229,35 +223,21 @@
 </div>
 <div>
 <h3 class="font-headline-md text-body-lg font-bold text-primary">Sécurité &amp; Sauvegarde</h3>
-<p class="font-body-sm text-[11px] text-on-surface-variant">Chiffrement de bout en bout des ventes</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Export JSON local, sans synchronisation cloud</p>
 </div>
 </div>
 <div class="space-y-2 mt-2">
-<!-- Biometric Auth -->
-<div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
-<div class="flex items-center gap-2.5 pr-2">
-<span class="material-symbols-outlined text-secondary text-[20px]">fingerprint</span>
-<div>
-<p class="font-body-md text-body-sm font-semibold text-primary">Authentification biométrique</p>
-<p class="font-body-sm text-[11px] text-on-surface-variant">Face ID / Empreinte requis au déverrouillage</p>
-</div>
-</div>
-<button aria-checked="true" class="toggle-btn w-11 h-6 rounded-full bg-primary p-0.5 flex items-center justify-end transition-colors duration-200 cursor-pointer" role="switch" type="button">
-<span class="w-5 h-5 rounded-full bg-surface-container-lowest shadow-sm"></span>
-</button>
-</div>
+<div class="p-space-sm bg-surface-container-low rounded-lg"><p class="font-body-md text-body-sm font-semibold text-primary">Connexion</p><p class="font-body-sm text-[11px] text-on-surface-variant">L’accès est protégé par les comptes et mots de passe de l’équipe.</p></div>
 <!-- Cloud Backup Status -->
 <div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
 <div class="flex items-center gap-2.5">
 <span class="material-symbols-outlined text-secondary text-[20px]">cloud_sync</span>
 <div>
-<p class="font-body-md text-body-sm font-semibold text-primary">Sauvegarde Cloud chiffrée</p>
-<p class="font-body-sm text-[11px] text-on-surface-variant">Dernier instantané : Il y a 6 min</p>
+<p class="font-body-md text-body-sm font-semibold text-primary">Copie de sauvegarde locale</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Télécharge les données métier de cet appareil</p>
 </div>
 </div>
-<button class="bg-surface-container-lowest text-primary px-2.5 py-1 rounded text-[11px] font-label-sm font-bold shadow-xs active:scale-95 transition-transform">
-            Forcer
-          </button>
+<button id="backup-export" type="button" class="bg-surface-container-lowest text-primary px-2.5 py-1 rounded text-[11px] font-label-sm font-bold shadow-xs active:scale-95 transition-transform">Télécharger</button>
 </div>
 </div>
 </div>

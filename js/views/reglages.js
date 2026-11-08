@@ -61,22 +61,24 @@
 
         refresh();
 
-        // Micro-interactions for setting toggles and buttons
-        document.querySelectorAll('.toggle-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const isChecked = btn.getAttribute('aria-checked') === 'true';
-            btn.setAttribute('aria-checked', (!isChecked).toString());
-            if (!isChecked) {
-              btn.classList.remove('bg-surface-variant', 'justify-start');
-              btn.classList.add('bg-primary', 'justify-end');
-              KD.toast('Fonction activée');
-            } else {
-              btn.classList.remove('bg-primary', 'justify-end');
-              btn.classList.add('bg-surface-variant', 'justify-start');
-              KD.toast('Fonction désactivée');
-            }
-          });
-        });
+        /* Le partage est un réglage local réellement appliqué après encaissement. */
+        const shareSwitch = document.getElementById('share-receipt-switch');
+        if (shareSwitch) {
+          var shareOn = window.localStorage.getItem('kandake.share-receipt') === 'true';
+          function paintShare() { shareSwitch.setAttribute('aria-checked', String(shareOn)); shareSwitch.classList.toggle('bg-primary', shareOn); shareSwitch.classList.toggle('justify-end', shareOn); shareSwitch.classList.toggle('bg-surface-variant', !shareOn); shareSwitch.classList.toggle('justify-start', !shareOn); }
+          paintShare();
+          shareSwitch.addEventListener('click', function () { shareOn = !shareOn; window.localStorage.setItem('kandake.share-receipt', String(shareOn)); paintShare(); KD.toast(shareOn ? 'Partage du reçu proposé après encaissement' : 'Partage du reçu désactivé'); });
+        }
+        var user = KD.currentUser && KD.currentUser();
+        var userName = document.getElementById('settings-user-name'); if (userName && user) userName.textContent = user.name;
+        var userRole = document.getElementById('settings-user-role'); if (userRole && user) userRole.textContent = (KD.ROLES[user.role] || {}).label || 'Compte';
+        var store = {}; try { store = JSON.parse(localStorage.getItem('kandake.store-profile') || '{}'); } catch (e) {}
+        function paintStore() { var n=document.getElementById('store-name'), a=document.getElementById('store-address'); if(n)n.textContent=store.name||'Kandake Maison & Beauté'; if(a)a.textContent=store.address||'Adresse non renseignée'; }
+        paintStore();
+        var editStore=document.getElementById('edit-store'); if(editStore)editStore.addEventListener('click',function(){var name=window.prompt('Nom de la boutique',store.name||'Kandake Maison & Beauté');if(name===null)return;var address=window.prompt('Adresse de la boutique',store.address||'');if(address===null)return;store.name=name.trim()||'Kandake Maison & Beauté';store.address=address.trim();localStorage.setItem('kandake.store-profile',JSON.stringify(store));paintStore();KD.toast('Identité de la boutique enregistrée');});
+        var network=document.getElementById('network-status'); function paintNetwork(){if(network)network.textContent=navigator.onLine?'En ligne · données locales':'Hors ligne · données locales';} window.addEventListener('online',paintNetwork);window.addEventListener('offline',paintNetwork);paintNetwork();
+        var productCount=document.getElementById('local-products-count');if(productCount&&KD.getProducts)productCount.textContent=KD.getProducts().length+' référence(s) catalogue enregistrées localement';
+        var backup=document.getElementById('backup-export');if(backup)backup.addEventListener('click',function(){var keys=['kandake.products','kandake.sales','kandake.mouvements','kandake.clients','kandake.commandes-fournisseurs','kandake.fx_rate','kandake.store-profile'];var data={format:'kandake-backup-v1',createdAt:new Date().toISOString(),data:{}};keys.forEach(function(k){var v=localStorage.getItem(k);if(v!==null)data.data[k]=v;});var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='kandake-sauvegarde.json';a.click();setTimeout(function(){URL.revokeObjectURL(url);},1000);KD.toast('Copie locale téléchargée · comptes exclus');});
 
         const updateBtn = document.getElementById('update-btn');
         if (updateBtn) {
@@ -177,7 +179,7 @@
           el.querySelector('[data-act="remove"]').addEventListener('click', () => {
             const list = KD.getUsers().filter((x) => x.id !== u.id);
             if (!list.length) { KD.toast('Conserver au moins une personne'); return; }
-            KD.saveUsers(list);
+            if (!KD.saveUsers(list)) { KD.toast('Conserver un administrateur et votre compte actif'); return; }
             renderTeam();
             KD.toast(u.name + ' retiré de l’équipe');
           });
@@ -205,7 +207,7 @@
             const users = KD.getUsers();
             const n = users.length + 1;
             users.push({ id: 'u' + Date.now(), name: 'Nouvelle personne ' + n, role: 'vendeuse', phone: '', password: '1234', active: true });
-            KD.saveUsers(users);
+            if (!KD.saveUsers(users)) { KD.toast('Impossible d’enregistrer la nouvelle personne'); return; }
             renderTeam();
             KD.toast('Personne ajoutée');
           });

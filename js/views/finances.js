@@ -15,6 +15,7 @@
       var period = document.getElementById('finance-period');
       var type = 'entree';
       var listeners = [];
+      var showAllMovements = false;
 
       function on(target, event, fn) {
         target.addEventListener(event, fn);
@@ -103,7 +104,9 @@
         set('fin-benefice-note', 'Marge brute connue moins dépenses de fonctionnement classées. ' + salesWithoutCost + ' ticket(s)/ligne(s) sans coût d’achat connu exclus; ' + money(expenses.General) + ' de dépenses générales ne sont pas répartis. Estimation partielle.');
 
         var list = document.getElementById('fin-movements');
-        var rows = monthMovements.slice(0, 8);
+        var rows = showAllMovements ? monthMovements : monthMovements.slice(0, 8);
+        var moreButton = document.getElementById('fin-movements-toggle');
+        if (moreButton) { moreButton.classList.toggle('hidden', monthMovements.length <= 8); moreButton.textContent = showAllMovements ? 'Réduire' : 'Tout voir'; }
         list.innerHTML = rows.length ? '' : '<p class="font-body-sm text-on-surface-variant">Aucun mouvement sur cette période.</p>';
         rows.forEach(function (m) {
           var row = document.createElement('div');
@@ -119,6 +122,7 @@
       }
       period.value = currentMonth();
       on(period, 'change', render);
+      on(document.getElementById('fin-movements-toggle'), 'click', function () { showAllMovements = !showAllMovements; render(); });
       on(document.getElementById('btn-add-tx'), 'click', function () { drawer.classList.remove('hidden'); drawer.classList.add('flex'); });
       on(document.getElementById('close-drawer'), 'click', function () { drawer.classList.add('hidden'); drawer.classList.remove('flex'); });
       on(document.getElementById('tab-in'), 'click', function () { setType('entree'); });

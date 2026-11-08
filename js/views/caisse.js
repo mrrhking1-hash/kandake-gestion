@@ -243,6 +243,10 @@ if (!y) return;
       var sumArticles = document.getElementById('sum-articles');
       var sumValeur = document.getElementById('sum-valeur');
       var sumVentes = document.getElementById('sum-ventes');
+      var lastRef = document.getElementById('last-ticket-ref');
+      var lastMeta = document.getElementById('last-ticket-meta');
+      var lastTotal = document.getElementById('last-ticket-total');
+      var lastStatus = document.getElementById('last-ticket-status');
 
       function rubriqueDe(p) {
         return p && p.cat === 'Art' ? 'Art' : 'Beauty';
@@ -262,6 +266,11 @@ if (!y) return;
       }
 
       function majSynthese() {
+        var latest = KD.getSales()[0];
+        if (lastRef) lastRef.textContent = latest ? (latest.numero || 'Vente') + (latest.clientName ? ' · ' + latest.clientName : '') : 'Aucune vente';
+        if (lastMeta) lastMeta.textContent = latest ? (latest.date || '') + ' · ' + (Number(latest.lignes) || 0) + ' article(s)' : 'Le dernier ticket apparaîtra ici.';
+        if (lastTotal) lastTotal.textContent = latest ? KD.money(latest.totalUsd, 'USD') : '—';
+        if (lastStatus) lastStatus.textContent = latest ? 'Encaissé' : '—';
         /* Le selecteur porte 'beauty' / 'art' en minuscules, les produits
            'Beauty' / 'Art' : on normalise avant de comparer. */
         var rubrique = shopActif === 'art' ? 'Art' : 'Beauty';
@@ -545,6 +554,10 @@ if (!y) return;
 
         if (typeof KD.toast === 'function') {
           KD.toast(n + (n > 1 ? ' articles encaissés' : ' article encaissé') + ' · ' + amount);
+        }
+        if (window.localStorage.getItem('kandake.share-receipt') === 'true' && navigator.share) {
+          var receipt = KD.getSales()[0];
+          navigator.share({ title: 'Reçu Kandake', text: (receipt.numero || 'Vente') + ' · ' + (receipt.clientName || 'Client de passage') + ' · ' + KD.money(receipt.totalUsd, 'USD') }).catch(function () {});
         }
         cart = [];
         if (clientInput) clientInput.value = '';
