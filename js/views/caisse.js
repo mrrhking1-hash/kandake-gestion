@@ -149,6 +149,7 @@ if (!y) return;
           opActif = btn.getAttribute('data-op');
           colorerSel(opBtns, 'data-op', opActif);
           setAction(opActif === 'vente' ? null : opActif);
+          if (opActif !== 'vente') setDrawer(true);
           sauverEtat();
         });
       });
@@ -168,6 +169,7 @@ if (!y) return;
       var checkout = document.getElementById('checkout');
       var actionAmountRow = document.getElementById('action-amount-row');
       var actionAmount = document.getElementById('action-amount');
+      var actionDescription = document.getElementById('action-description');
       var selectedSummary = document.getElementById('selected-summary');
 
       /* Le catalogue est en dollars ; le client choisit la devise dans
@@ -505,12 +507,13 @@ if (!y) return;
           }
           var enregistre = typeof KD.addMovement === 'function'
             && KD.addMovement({ type: actionActif, amountUsd: saisie,
-              category: shopActif === 'art' ? 'Art' : 'Beauty', description: '' });
+              category: shopActif === 'art' ? 'Art' : 'Beauty', description: actionDescription ? actionDescription.value.trim() : '' });
           if (!enregistre) {
             if (typeof KD.toast === 'function') KD.toast("Mouvement non enregistré", 'error');
             return;
           }
           if (actionAmount) actionAmount.value = '';
+          if (actionDescription) actionDescription.value = '';
           if (typeof KD.toast === 'function') {
             KD.toast((actionActif === 'entree' ? "Entrée d'argent" : "Sortie d'argent")
               + ' de ' + money(saisie) + ' enregistrée', 'sync');
@@ -590,6 +593,7 @@ if (!y) return;
         if (['entree', 'sortie'].indexOf(etat.action) !== -1) {
           actionActif = etat.action;
           setAction(actionActif);
+          setDrawer(true);
         }
         applyFilters();
       }
