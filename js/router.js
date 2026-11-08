@@ -21,6 +21,8 @@
                 desc: 'Journal des commandes, suivi des encaissements et export des ventes de la boutique Kandake.' },
     finances: { file: 'views/finances.html', script: 'js/views/finances.js', label: 'Finances', icon: 'account_balance_wallet', path: 'finance',
                 desc: 'Tableau de gestion, tr\u00e9sorerie et grand livre comptable de Kandake Maison &amp; Beaut\u00e9.' },
+    rentabilite: { file: 'views/rentabilite.html', script: 'js/views/rentabilite.js', label: 'Rentabilité', icon: 'monitoring', path: 'profitability',
+                hidden: true, desc: 'Marge réalisée des ventes et marge potentielle du stock par produit.' },
     reglages: { file: 'views/reglages.html', script: 'js/views/reglages.js', label: 'R\u00e9glages', icon: 'settings',            path: 'settings',
                 desc: 'Configuration de la boutique, de la caisse, de l\u2019\u00e9quipe et de la PWA Kandake.' },
     clients:  { file: 'views/clients.html', script: 'js/views/clients.js', label: 'Clients', icon: 'group', path: 'clients',

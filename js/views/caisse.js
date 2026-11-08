@@ -542,7 +542,7 @@ if (!y) return;
             clientName: clientInput ? clientInput.value.trim() : '',
             articles: cart.map(function (l) {
               var produit = KD.getProduct(l.pid) || {};
-              return { nom: produit.name || l.name, categorie: rubriqueDe(produit), quantite: l.qty,
+              return { pid: l.pid, nom: produit.name || l.name, categorie: rubriqueDe(produit), quantite: l.qty,
                 prixVenteUsd: Number(l.price) || 0,
                 prixAchatUsd: produit.purchasePrice == null ? null : Number(produit.purchasePrice) };
             })
