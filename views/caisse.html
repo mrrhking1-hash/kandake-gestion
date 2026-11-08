@@ -18,10 +18,10 @@ Voir le panier
 <span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Point de vente</span>
 <h2 class="font-headline-md text-headline-md text-on-surface">Caisse</h2>
 </div>
-<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success-container text-on-surface shrink-0">
+<div class="flex items-center gap-2 shrink-0"><button id="btn-add-tx" type="button" class="h-9 px-3 rounded-lg bg-primary text-on-primary text-xs font-semibold active:scale-95 transition-transform">+ Opération</button><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success-container text-on-surface">
 <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
 <span class="font-label-sm text-[10px]">Caisse 1</span>
-</div>
+</div></div>
 </div>
 <!-- Sélecteur Beauty / Art -->
 <div class="flex items-center gap-1 p-0.5 rounded-lg bg-surface-container shadow-sm w-fit">
@@ -91,24 +91,22 @@ Voir le panier
 </div>
 </div>
 <!-- Panier (drawer) -->
-<div class="fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm hidden flex-col justify-end transition-opacity duration-300" id="cart-drawer">
-<div class="w-full max-h-[85dvh] overscroll-contain bg-surface-container-lowest rounded-t-xl p-space-md pb-[max(1rem,env(safe-area-inset-bottom,0px))] shadow-2xl flex flex-col gap-space-md">
+<div class="kd-form-backdrop fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm hidden flex-col justify-end transition-opacity duration-300" id="cart-drawer">
+<div class="kd-form-sheet max-h-[85dvh] overscroll-contain p-space-md pb-[max(1rem,env(safe-area-inset-bottom,0px))] gap-space-md">
 <div class="w-10 h-1 bg-surface-variant rounded-full mx-auto"></div>
-<div class="flex items-center justify-between">
+<div class="kd-form-header">
 <div>
-<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Ticket en cours</span>
-<h3 class="font-headline-sm text-headline-sm text-primary">Panier</h3>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold" id="cart-sheet-kicker">Ticket en cours</span>
+<h3 class="font-headline-sm text-headline-sm text-primary" id="cart-sheet-title">Panier</h3>
 </div>
 <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface active:scale-90" id="close-cart" type="button" aria-label="Fermer le panier">
 <span class="material-symbols-outlined text-[18px]">close</span>
 </button>
 </div>
-<div class="flex-1 overflow-y-auto space-y-2 min-h-[120px]" id="cart-lines"></div>
-<p class="text-center font-body-sm text-body-sm text-on-surface-variant hidden" id="cart-empty">
-Aucun article sélectionné.
-</p>
+<div class="kd-form-scroll" id="cart-sheet-body"><div id="cart-sale-lines"><div class="flex-1 overflow-y-auto space-y-2 min-h-[120px]" id="cart-lines"></div>
+<p class="text-center font-body-sm text-body-sm text-on-surface-variant hidden" id="cart-empty">Aucun article sélectionné.</p></div>
 <div class="flex flex-col gap-2">
-<div class="flex items-center justify-between gap-2">
+<div class="flex items-center justify-between gap-2" id="cart-currency-row">
 <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Règlement</p>
 <div class="flex items-center rounded-lg bg-surface-container p-0.5 shrink-0" id="cur-switch" role="group" aria-label="Devise de la vente">
 <button class="cur-btn px-2.5 h-7 rounded-md bg-primary text-on-primary font-label-sm text-[11px] font-bold" data-cur="USD" type="button" aria-pressed="true">$ USD</button>
@@ -118,15 +116,16 @@ Aucun article sélectionné.
 <div class="hidden flex-col gap-2 p-3 rounded-lg bg-surface-container-low" id="action-amount-row">
 <div class="flex items-center gap-2 h-10">
 <span class="material-symbols-outlined text-[18px] text-on-surface-variant shrink-0">paid</span>
-<input class="w-full bg-transparent outline-none font-body-md text-body-md text-primary placeholder:text-outline-variant" id="action-amount" placeholder="Montant en USD ($)" type="number" min="0.01" step="0.01" inputmode="decimal" aria-label="Montant de l’opération">
+<input class="kd-form-control" id="action-amount" placeholder="Montant en USD ($)" type="number" min="0.01" step="0.01" inputmode="decimal" aria-label="Montant de l’opération">
 </div>
-<input class="w-full h-10 px-2 rounded-md bg-surface-container-lowest outline-none font-body-sm text-primary placeholder:text-outline-variant" id="action-description" placeholder="Motif (facultatif)" type="text" maxlength="120" aria-label="Motif de l’opération">
+<input class="kd-form-control" id="action-description" placeholder="Motif (facultatif)" type="text" maxlength="120" aria-label="Motif de l’opération">
+<select class="kd-form-control" id="action-category" aria-label="Activité concernée"><option value="Beauty">Beauty</option><option value="Art">Art</option><option value="Général">Général · non réparti</option></select>
 </div>
 <div class="grid grid-cols-2 gap-2">
 <button class="pay-action-btn w-full h-11 rounded-lg bg-success text-on-primary font-label-md text-label-md active:scale-[0.98] transition-transform" data-action="entree" type="button">Entrée d'argent</button>
 <button class="pay-action-btn w-full h-11 rounded-lg bg-error text-on-primary font-label-md text-label-md active:scale-[0.98] transition-transform" data-action="sortie" type="button">Sortie d'argent</button>
 </div>
-<div class="space-y-1 p-3 rounded-lg bg-surface-container-low">
+<div class="space-y-1 p-3 rounded-lg bg-surface-container-low" id="cart-sale-totals">
 <div class="flex items-center justify-between">
 <span class="font-body-sm text-[12px] text-on-surface-variant">Sous-total</span>
 <span class="font-data-mono text-[12px] text-primary" id="sub-total">$0</span>
@@ -137,10 +136,8 @@ Aucun article sélectionné.
 </div>
 <p class="font-body-sm text-[11px] text-secondary text-right pt-1 hidden" id="fx-note"></p>
 </div>
-<button class="w-full h-12 rounded-lg bg-primary text-on-primary font-label-lg text-label-lg active:scale-[0.98] transition-transform shadow-md disabled:opacity-40" id="checkout" type="button" disabled>
-Encaisser la vente
-</button>
 </div>
+<div class="kd-form-footer"><button class="flex-1 h-12 rounded-2xl bg-primary text-on-primary font-label-lg active:scale-[0.98] transition-transform shadow-md disabled:opacity-40" id="checkout" type="button" disabled>Encaisser la vente</button></div>
 </div>
 </div>
 </main>

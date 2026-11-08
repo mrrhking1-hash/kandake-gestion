@@ -154,6 +154,15 @@ if (!y) return;
         });
       });
 
+      var addMoneyOperation = document.getElementById('btn-add-tx');
+      if (addMoneyOperation) addMoneyOperation.addEventListener('click', function () {
+        opActif = 'entree';
+        colorerSel(opBtns, 'data-op', opActif);
+        setAction('entree');
+        setDrawer(true);
+        sauverEtat();
+      });
+
       /* ------------------------------------------------------------ panier */
       var cart = []; /* { pid, name, price, qty } */
 
@@ -170,6 +179,12 @@ if (!y) return;
       var actionAmountRow = document.getElementById('action-amount-row');
       var actionAmount = document.getElementById('action-amount');
       var actionDescription = document.getElementById('action-description');
+      var actionCategory = document.getElementById('action-category');
+      var cartSaleLines = document.getElementById('cart-sale-lines');
+      var cartCurrencyRow = document.getElementById('cart-currency-row');
+      var cartSaleTotals = document.getElementById('cart-sale-totals');
+      var cartSheetKicker = document.getElementById('cart-sheet-kicker');
+      var cartSheetTitle = document.getElementById('cart-sheet-title');
       var selectedSummary = document.getElementById('selected-summary');
 
       /* Le catalogue est en dollars ; le client choisit la devise dans
@@ -231,6 +246,12 @@ if (!y) return;
           actionAmountRow.classList.toggle('flex', !!actionActif);
           if (!actionActif && actionAmount) actionAmount.value = '';
         }
+        if (actionActif && actionCategory) actionCategory.value = shopActif === 'art' ? 'Art' : 'Beauty';
+        [cartSaleLines, cartCurrencyRow, cartSaleTotals].forEach(function (section) {
+          if (section) section.classList.toggle('hidden', !!actionActif);
+        });
+        if (cartSheetKicker) cartSheetKicker.textContent = actionActif ? 'Mouvement de caisse' : 'Ticket en cours';
+        if (cartSheetTitle) cartSheetTitle.textContent = actionActif === 'entree' ? 'Entrée d’argent' : actionActif === 'sortie' ? 'Sortie d’argent' : 'Panier';
         if (checkout) {
           checkout.textContent = actionActif === 'entree' ? "Enregistrer l'entrée"
             : actionActif === 'sortie' ? 'Enregistrer la sortie'
@@ -474,12 +495,17 @@ if (!y) return;
 
       document.getElementById('open-cart').addEventListener('click', function () { setDrawer(true); });
       document.getElementById('close-cart').addEventListener('click', function () { setDrawer(false); });
+      drawer.addEventListener('click', function (event) { if (event.target === drawer) setDrawer(false); });
+      document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !drawer.classList.contains('hidden')) setDrawer(false); });
 
       /* Boutons d'action : entrée/sortie d'argent */
       var actionBtns = Array.prototype.slice.call(document.querySelectorAll('.pay-action-btn'));
       actionBtns.forEach(function (btn) {
         btn.addEventListener('click', function () {
-          setAction(btn.getAttribute('data-action'));
+          actionActif = btn.getAttribute('data-action');
+          opActif = actionActif;
+          colorerSel(opBtns, 'data-op', opActif);
+          setAction(actionActif);
           sauverEtat();
         });
       });
@@ -507,7 +533,7 @@ if (!y) return;
           }
           var enregistre = typeof KD.addMovement === 'function'
             && KD.addMovement({ type: actionActif, amountUsd: saisie,
-              category: shopActif === 'art' ? 'Art' : 'Beauty', description: actionDescription ? actionDescription.value.trim() : '' });
+              category: actionCategory ? actionCategory.value : (shopActif === 'art' ? 'Art' : 'Beauty'), description: actionDescription ? actionDescription.value.trim() : '' });
           if (!enregistre) {
             if (typeof KD.toast === 'function') KD.toast("Mouvement non enregistré", 'error');
             return;

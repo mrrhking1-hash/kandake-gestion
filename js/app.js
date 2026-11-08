@@ -6,6 +6,31 @@
   var KD = window.KD || {};
   window.KD = KD;
 
+  /* Verrou commun aux feuilles de formulaire, y compris les panneaux empilés. */
+  KD.freezeFormSheet = function (overlay) {
+    if (!overlay) return { locked: false, y: 0 };
+    var body = document.body;
+    var alreadyFrozen = body.classList.contains('kd-body-frozen');
+    var y = alreadyFrozen ? (parseInt(body.getAttribute('data-kd-sheet-y'), 10) || 0) : (window.scrollY || window.pageYOffset || 0);
+    overlay.style.top = y + 'px';
+    if (!alreadyFrozen) {
+      body.setAttribute('data-kd-sheet-y', String(y));
+      body.style.top = -y + 'px';
+      body.classList.add('kd-sheet-open', 'kd-body-frozen');
+    }
+    return { locked: !alreadyFrozen, y: y };
+  };
+  KD.unfreezeFormSheet = function (overlay, token) {
+    if (overlay) overlay.style.top = '';
+    if (!token || !token.locked) return;
+    var y = token.y || 0;
+    document.body.removeAttribute('data-kd-sheet-y');
+    document.body.classList.remove('kd-sheet-open', 'kd-body-frozen');
+    document.body.style.top = '';
+    var restore = function () { window.scrollTo(0, y); };
+    if (window.requestAnimationFrame) window.requestAnimationFrame(restore); else setTimeout(restore, 0);
+  };
+
 /* ------------------------------------------------------------- session
      L'acces a l'application est conditionne a une session : la page de
      connexion prend le dessus sur le shell quand elle est fermee. */

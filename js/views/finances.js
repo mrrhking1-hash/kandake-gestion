@@ -5,28 +5,13 @@
   KD.views.finances = {
     title: 'Finances',
     mount: function () {
-      var drawer = document.getElementById('operation-drawer');
-      var amount = document.getElementById('operation-amount');
-      var description = document.getElementById('operation-description');
-      var category = document.getElementById('operation-category');
-      var submit = document.getElementById('submit-operation');
-      var toast = document.getElementById('toast');
-      var toastText = document.getElementById('toast-text');
       var period = document.getElementById('finance-period');
-      var type = 'entree';
       var listeners = [];
       var showAllMovements = false;
 
       function on(target, event, fn) {
         target.addEventListener(event, fn);
         listeners.push(function () { target.removeEventListener(event, fn); });
-      }
-      function announce(text) {
-        if (!toast || !toastText) return;
-        toastText.textContent = text;
-        toast.classList.remove('opacity-0', 'pointer-events-none');
-        toast.classList.add('opacity-100');
-        setTimeout(function () { toast.classList.add('opacity-0', 'pointer-events-none'); }, 2200);
       }
       function money(value) { return KD.money(Number(value) || 0, 'USD'); }
       function set(id, value) { var el = document.getElementById(id); if (el) el.textContent = value; }
@@ -35,14 +20,6 @@
         return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
       }
       function inPeriod(date) { return String(date || '').slice(0, 7) === period.value; }
-      function setType(next) {
-        type = next;
-        var inBtn = document.getElementById('tab-in');
-        var outBtn = document.getElementById('tab-out');
-        inBtn.className = type === 'entree' ? 'flex-1 py-2 rounded-md bg-surface-container-lowest text-primary font-bold' : 'flex-1 py-2 rounded-md text-on-surface-variant';
-        outBtn.className = type === 'sortie' ? 'flex-1 py-2 rounded-md bg-surface-container-lowest text-primary font-bold' : 'flex-1 py-2 rounded-md text-on-surface-variant';
-        submit.textContent = type === 'sortie' ? 'Enregistrer la dépense' : 'Enregistrer l’entrée';
-      }
       function render() {
         var monthSales = KD.getSales().filter(function (s) { return s && inPeriod(s.date); });
         var ca = { Beauty: 0, Art: 0 };
@@ -123,24 +100,11 @@
       period.value = currentMonth();
       on(period, 'change', render);
       on(document.getElementById('fin-movements-toggle'), 'click', function () { showAllMovements = !showAllMovements; render(); });
-      on(document.getElementById('btn-add-tx'), 'click', function () { drawer.classList.remove('hidden'); drawer.classList.add('flex'); });
-      on(document.getElementById('close-drawer'), 'click', function () { drawer.classList.add('hidden'); drawer.classList.remove('flex'); });
-      on(document.getElementById('tab-in'), 'click', function () { setType('entree'); });
-      on(document.getElementById('tab-out'), 'click', function () { setType('sortie'); });
-      on(submit, 'click', function () {
-        var value = Number(amount.value);
-        if (!isFinite(value) || value <= 0) { announce('Saisissez un montant supérieur à 0.'); amount.focus(); return; }
-        var ok = KD.addMovement({ type: type, amountUsd: value, category: category.value, description: description.value });
-        if (!ok) { announce('Mouvement non enregistré.'); return; }
-        amount.value = ''; description.value = '';
-        drawer.classList.add('hidden'); drawer.classList.remove('flex');
-        render(); announce(type === 'sortie' ? 'Dépense enregistrée.' : 'Entrée enregistrée.');
-      });
       on(document, 'kd:sales', render);
       on(document, 'kd:movements', render);
       on(document, 'kd:purchase-orders', render);
       on(document, 'kd:products', render);
-      setType('entree'); render();
+      render();
       this.unmount = function () { listeners.forEach(function (remove) { remove(); }); };
     },
     unmount: function () {}

@@ -8,6 +8,8 @@
       var listView = document.getElementById('clients-list-view');
       var detailView = document.getElementById('client-detail-view');
       var formView = document.getElementById('client-form-view');
+      var formOverlay = document.getElementById('client-form-overlay');
+      var formLock = null;
       var search = document.getElementById('client-search');
       var activeId = null;
       var editId = null;
@@ -23,9 +25,16 @@
       function spentFor(client) { return salesFor(client).reduce(function (sum, sale) { return sum + (Number(sale.totalUsd) || 0); }, 0); }
       function button(text, cls) { var el = document.createElement('button'); el.type = 'button'; el.className = cls; el.textContent = text; return el; }
       function show(view) {
+        var wasOpen = formOverlay && !formOverlay.classList.contains('hidden');
         listView.classList.toggle('hidden', view !== 'list');
         detailView.classList.toggle('hidden', view !== 'detail');
-        formView.classList.toggle('hidden', view !== 'form');
+        if (formOverlay) {
+          var open = view === 'form';
+          formOverlay.classList.toggle('hidden', !open);
+          formOverlay.classList.toggle('flex', open);
+          if (open && !wasOpen && KD.freezeFormSheet) formLock = KD.freezeFormSheet(formOverlay);
+          if (!open && wasOpen && KD.unfreezeFormSheet) { KD.unfreezeFormSheet(formOverlay, formLock); formLock = null; }
+        }
       }
       function renderList() {
         var root = document.getElementById('clients-list');
@@ -73,6 +82,8 @@
       on(search, 'input', renderList);
       on(document.getElementById('client-add'), 'click', function () { openForm(null); });
       on(document.getElementById('client-form-close'), 'click', function () { show(activeId ? 'detail' : 'list'); });
+      on(document.getElementById('client-form-cancel'), 'click', function () { show(activeId ? 'detail' : 'list'); });
+      on(formOverlay, 'click', function (event) { if (event.target === formOverlay || event.target.hasAttribute('data-client-form-backdrop')) show(activeId ? 'detail' : 'list'); });
       on(document.getElementById('client-back-list'), 'click', function () { show('list'); renderList(); });
       on(document.getElementById('client-edit'), 'click', function () {
         var client = KD.getClients().filter(function (c) { return c.id === activeId; })[0];
@@ -97,7 +108,7 @@
       on(document, 'kd:clients', function () { renderList(); if (activeId) renderDetail(); });
       on(document, 'kd:sales', function () { renderList(); if (activeId) renderDetail(); });
       renderList();
-      this.unmount = function () { removers.forEach(function (remove) { remove(); }); };
+      this.unmount = function () { if (formLock && KD.unfreezeFormSheet) KD.unfreezeFormSheet(formOverlay, formLock); formLock = null; removers.forEach(function (remove) { remove(); }); };
     },
     unmount: function () {}
   };

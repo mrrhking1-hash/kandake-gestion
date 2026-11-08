@@ -15,6 +15,10 @@
       var paid = document.getElementById('purchase-paid');
       var submit = document.getElementById('purchase-submit');
       var drawer = document.getElementById('purchase-action-drawer');
+      var createDrawer = document.getElementById('purchase-create-drawer');
+      var createLock = null;
+      var actionLock = null;
+      var productLock = null;
       var fields = document.getElementById('purchase-action-fields');
       var actionSubmit = document.getElementById('purchase-action-submit');
       var toast = document.getElementById('purchase-toast');
@@ -150,7 +154,21 @@
           ordersRoot.appendChild(card);
         });
       }
-      function closeAction() { drawer.classList.add('hidden'); drawer.classList.remove('flex'); action = null; }
+      function closeAction() {
+        drawer.classList.add('hidden'); drawer.classList.remove('flex'); action = null;
+        if (KD.unfreezeFormSheet) KD.unfreezeFormSheet(drawer, actionLock);
+        actionLock = null;
+      }
+      function openCreateOrder() {
+        createDrawer.classList.remove('hidden'); createDrawer.classList.add('flex');
+        if (KD.freezeFormSheet) createLock = KD.freezeFormSheet(createDrawer);
+        document.getElementById('purchase-supplier').focus();
+      }
+      function closeCreateOrder() {
+        createDrawer.classList.add('hidden'); createDrawer.classList.remove('flex');
+        if (KD.unfreezeFormSheet) KD.unfreezeFormSheet(createDrawer, createLock);
+        createLock = null;
+      }
       function openAction(kind, orderId) {
         var order = KD.getPurchaseOrders().filter(function (item) { return item.id === orderId; })[0];
         if (!order) return;
@@ -159,7 +177,7 @@
         if (kind === 'pay') {
           document.getElementById('purchase-action-title').textContent = 'Paiement fournisseur';
           var due = Math.max(0, order.totalUsd - order.paidUsd);
-          fields.innerHTML = '<p class="font-body-sm text-on-surface-variant">Reste à régler pour ' + esc(order.supplier) + ' : <strong>' + money(due) + '</strong></p><label class="block font-label-md text-primary">Montant payé (USD)<input class="block w-full h-12 mt-1 px-3 rounded-lg bg-surface-container-low" id="purchase-pay-amount" type="number" min="0.01" max="' + due + '" step="0.01" inputmode="decimal" value="' + due + '"></label>';
+          fields.innerHTML = '<p class="font-body-sm text-on-surface-variant">Reste à régler pour ' + esc(order.supplier) + ' : <strong>' + money(due) + '</strong></p><label class="kd-form-label">Montant payé (USD)<input class="kd-form-control" id="purchase-pay-amount" type="number" min="0.01" max="' + due + '" step="0.01" inputmode="decimal" value="' + due + '"></label>';
           actionSubmit.textContent = 'Enregistrer le paiement';
         } else {
           document.getElementById('purchase-action-title').textContent = 'Réception de la commande';
@@ -167,22 +185,29 @@
           order.items.forEach(function (item) {
             var outstanding = item.qtyOrdered - item.qtyReceived;
             if (outstanding <= 0) return;
-            var label = document.createElement('label'); label.className = 'block font-label-md text-primary'; label.textContent = item.name + ' · reste ' + outstanding;
+            var label = document.createElement('label'); label.className = 'kd-form-label'; label.textContent = item.name + ' · reste ' + outstanding;
             var input = document.createElement('input'); input.type = 'number'; input.min = '0'; input.max = String(outstanding); input.step = '1'; input.inputMode = 'numeric'; input.value = String(outstanding);
-            input.className = 'block w-full h-11 mt-1 px-3 rounded-lg bg-surface-container-low'; input.setAttribute('data-receive-pid', item.pid); input.setAttribute('aria-label', 'Quantité reçue de ' + item.name);
+            input.className = 'kd-form-control'; input.setAttribute('data-receive-pid', item.pid); input.setAttribute('aria-label', 'Quantité reçue de ' + item.name);
             label.appendChild(input); fields.appendChild(label);
           });
           actionSubmit.textContent = 'Confirmer la réception';
         }
         drawer.classList.remove('hidden'); drawer.classList.add('flex');
+        if (KD.freezeFormSheet) actionLock = KD.freezeFormSheet(drawer);
       }
 
+      on(document.getElementById('purchase-new-order'), 'click', openCreateOrder);
+      on(document.getElementById('purchase-create-close'), 'click', closeCreateOrder);
+      on(document.getElementById('purchase-create-cancel'), 'click', closeCreateOrder);
+      on(createDrawer, 'click', function (event) { if (event.target === createDrawer) closeCreateOrder(); });
       on(document.getElementById('purchase-add-product'), 'click', function () {
         newProductDrawer.classList.remove('hidden'); newProductDrawer.classList.add('flex');
+        if (KD.freezeFormSheet) productLock = KD.freezeFormSheet(newProductDrawer);
         document.getElementById('new-product-name').focus();
       });
-      function closeNewProduct() { newProductDrawer.classList.add('hidden'); newProductDrawer.classList.remove('flex'); }
+      function closeNewProduct() { newProductDrawer.classList.add('hidden'); newProductDrawer.classList.remove('flex'); if (KD.unfreezeFormSheet) KD.unfreezeFormSheet(newProductDrawer, productLock); productLock = null; }
       on(document.getElementById('new-product-close'), 'click', closeNewProduct);
+      on(document.getElementById('new-product-cancel'), 'click', closeNewProduct);
       on(newProductDrawer, 'click', function (event) { if (event.target === newProductDrawer) closeNewProduct(); });
       on(document.getElementById('new-product-save'), 'click', function () {
         var name = document.getElementById('new-product-name').value.trim();
@@ -217,7 +242,7 @@
         var order = KD.createPurchaseOrder({ supplier: supplier.value, items: items, freightUsd: Number(freight.value), paidUsd: Number(paid.value) });
         if (!order) { toastMsg('Vérifie le fournisseur, les coûts, le transport et le paiement.'); return; }
         selected = Object.create(null); freight.value = '0'; paid.value = '0';
-        renderProducts(); renderDraft(); renderOrders(); toastMsg('Commande enregistrée · ' + order.id);
+        closeCreateOrder(); renderProducts(); renderDraft(); renderOrders(); toastMsg('Commande enregistrée · ' + order.id);
       });
       on(ordersRoot, 'click', function (event) {
         var button = event.target.closest('[data-order-action]'); if (button) openAction(button.getAttribute('data-order-action'), button.getAttribute('data-order-id'));
@@ -245,10 +270,11 @@
         if (event.key !== 'Escape') return;
         if (!drawer.classList.contains('hidden')) closeAction();
         if (!newProductDrawer.classList.contains('hidden')) closeNewProduct();
+        if (!createDrawer.classList.contains('hidden')) closeCreateOrder();
       });
       products = KD.getProducts().filter(function (product) { return product.cat === 'Beauty'; });
       renderProducts(); renderDraft(); renderOrders();
-      this.unmount = function () { removers.forEach(function (remove) { remove(); }); clearTimeout(toastTimer); };
+      this.unmount = function () { if (drawer && !drawer.classList.contains('hidden')) closeAction(); if (newProductDrawer && !newProductDrawer.classList.contains('hidden')) closeNewProduct(); if (createDrawer && !createDrawer.classList.contains('hidden')) closeCreateOrder(); removers.forEach(function (remove) { remove(); }); clearTimeout(toastTimer); };
     },
     unmount: function () {}
   };

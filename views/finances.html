@@ -15,7 +15,7 @@
 <div class="rounded-xl bg-surface-container-lowest p-space-sm shadow-sm"><span class="font-label-sm text-on-surface-variant">Art</span><strong class="block mt-1 font-data-mono text-primary" id="fin-ca-art">$0</strong></div>
 </div></section>
 <section class="space-y-2" aria-label="Dépenses">
-<div class="flex items-center justify-between"><h3 class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Dépenses enregistrées</h3><button class="h-9 px-3 rounded-lg bg-primary text-on-primary font-label-md text-label-md" id="btn-add-tx" type="button">+ Ajouter</button></div>
+<div class="flex items-center justify-between"><h3 class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Dépenses enregistrées</h3><span class="text-xs text-on-surface-variant">Saisie depuis la Caisse</span></div>
 <div class="grid grid-cols-2 gap-gutter">
 <div class="col-span-2 rounded-xl bg-surface-container-low p-space-sm"><span class="font-label-sm text-on-surface-variant">Total dépensé</span><strong class="block mt-1 font-data-mono text-primary" id="fin-dep-total">$0</strong></div>
 <div class="rounded-xl bg-surface-container-lowest p-space-sm shadow-sm"><span class="font-label-sm text-on-surface-variant">Beauty</span><strong class="block mt-1 font-data-mono text-primary" id="fin-dep-beauty">$0</strong></div>
@@ -39,14 +39,5 @@
 </section>
 <section class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm space-y-2"><div class="flex items-center justify-between"><h3 class="font-headline-sm text-primary">Mouvements</h3><button id="fin-movements-toggle" class="text-sm font-semibold text-secondary" type="button">Tout voir</button></div><div class="space-y-2" id="fin-movements"><p class="font-body-sm text-on-surface-variant">Aucun mouvement sur cette période.</p></div></section>
 </div>
-<div class="fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm hidden flex-col justify-end" id="operation-drawer">
-<div class="w-full bg-surface-container-lowest rounded-t-xl p-space-md shadow-2xl flex flex-col gap-space-md">
-<div class="w-10 h-1 bg-surface-variant rounded-full mx-auto"></div><div class="flex items-center justify-between"><h3 class="font-headline-sm text-primary">Nouvelle opération</h3><button class="w-9 h-9 rounded-full bg-surface-container" id="close-drawer" type="button" aria-label="Fermer">×</button></div>
-<div class="flex rounded-lg bg-surface-container p-1"><button class="flex-1 py-2 rounded-md bg-surface-container-lowest text-primary font-bold" id="tab-in" type="button">Entrée</button><button class="flex-1 py-2 rounded-md text-on-surface-variant" id="tab-out" type="button">Dépense</button></div>
-<label class="space-y-1 font-label-md text-on-surface">Montant en USD<input class="block w-full h-12 px-3 rounded-lg bg-surface-container-low" id="operation-amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00"></label>
-<label class="space-y-1 font-label-md text-on-surface">Description<input class="block w-full h-12 px-3 rounded-lg bg-surface-container-low" id="operation-description" type="text" placeholder="Ex. transport, achat de stock"></label>
-<label class="space-y-1 font-label-md text-on-surface">Activité concernée<select class="block w-full h-12 px-3 rounded-lg bg-surface-container-low" id="operation-category"><option value="Beauty">Beauty</option><option value="Art">Art</option><option value="Général">Général (non réparti)</option></select></label>
-<button class="w-full h-12 rounded-lg bg-primary text-on-primary font-label-lg" id="submit-operation" type="button">Enregistrer</button>
-</div></div>
 <div class="fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-primary text-on-primary font-label-md shadow-xl opacity-0 pointer-events-none transition-opacity z-50" id="toast"><span id="toast-text"></span></div>
 </main>

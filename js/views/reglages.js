@@ -13,6 +13,8 @@
         const fxError = document.getElementById('fx-error');
         const fxRate = document.getElementById('fx-rate');
         const fxReset = document.getElementById('fx-reset');
+        const fxEditor = document.getElementById('fx-editor');
+        let fxLock = null;
 
         function refresh() {
           if (fxRate) fxRate.textContent = KD.fxLabel();
@@ -24,35 +26,36 @@
           if (fxInput) fxInput.classList.toggle('border-error', on);
         }
 
-        if (fxInput) {
+        function closeFxEditor() {
+          fxEditor.classList.add('hidden'); fxEditor.classList.remove('flex');
+          if (KD.unfreezeFormSheet) KD.unfreezeFormSheet(fxEditor, fxLock);
+          fxLock = null;
+        }
+        document.getElementById('fx-edit').addEventListener('click', () => {
           fxInput.value = String(KD.getFxRate());
-
-          const commit = () => {
+          fxEditor.classList.remove('hidden'); fxEditor.classList.add('flex');
+          if (KD.freezeFormSheet) fxLock = KD.freezeFormSheet(fxEditor);
+          fxInput.focus();
+        });
+        fxEditor.querySelectorAll('[data-form-close], [data-form-cancel]').forEach((button) => button.addEventListener('click', closeFxEditor));
+        fxEditor.addEventListener('click', (event) => { if (event.target === fxEditor || event.target.hasAttribute('data-form-backdrop')) closeFxEditor(); });
+        document.getElementById('fx-save').addEventListener('click', () => {
             const saved = KD.setFxRate(fxInput.value);
             if (saved === null) {
-              showError(true);
+              showError(true); fxInput.focus();
               return;
             }
             showError(false);
-            // on renormalise l'affichage (2300 -> "2 300")
-            fxInput.value = String(saved);
             refresh();
+            closeFxEditor();
             KD.toast('Taux mis à jour : ' + KD.fxLabel());
-          };
-
-          // validation en direct pendant la saisie, enregistrement à la sortie
-          fxInput.addEventListener('input', () => { showError(false); });
-          fxInput.addEventListener('change', commit);
-          fxInput.addEventListener('blur', commit);
-          fxInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') { e.preventDefault(); fxInput.blur(); }
-          });
-        }
+        });
+        fxInput.addEventListener('input', () => showError(false));
+        fxInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('fx-save').click(); } });
 
         if (fxReset) {
           fxReset.addEventListener('click', () => {
             KD.resetFxRate();
-            if (fxInput) fxInput.value = String(KD.getFxRate());
             showError(false);
             refresh();
             KD.toast('Taux réinitialisé : ' + KD.fxLabel());
@@ -75,7 +78,26 @@
         var store = {}; try { store = JSON.parse(localStorage.getItem('kandake.store-profile') || '{}'); } catch (e) {}
         function paintStore() { var n=document.getElementById('store-name'), a=document.getElementById('store-address'); if(n)n.textContent=store.name||'Kandake Maison & Beauté'; if(a)a.textContent=store.address||'Adresse non renseignée'; }
         paintStore();
-        var editStore=document.getElementById('edit-store'); if(editStore)editStore.addEventListener('click',function(){var name=window.prompt('Nom de la boutique',store.name||'Kandake Maison & Beauté');if(name===null)return;var address=window.prompt('Adresse de la boutique',store.address||'');if(address===null)return;store.name=name.trim()||'Kandake Maison & Beauté';store.address=address.trim();localStorage.setItem('kandake.store-profile',JSON.stringify(store));paintStore();KD.toast('Identité de la boutique enregistrée');});
+        var storeEditor=document.getElementById('store-editor');
+        var storeLock=null;
+        function closeStoreEditor(){if(!storeEditor)return;storeEditor.classList.add('hidden');storeEditor.classList.remove('flex');if(KD.unfreezeFormSheet)KD.unfreezeFormSheet(storeEditor,storeLock);storeLock=null;}
+        var editStore=document.getElementById('edit-store');
+        if(editStore)editStore.addEventListener('click',function(){
+          document.getElementById('store-edit-name').value=store.name||'Kandake Maison & Beauté';
+          document.getElementById('store-edit-address').value=store.address||'';
+          storeEditor.classList.remove('hidden');storeEditor.classList.add('flex');
+          if(KD.freezeFormSheet)storeLock=KD.freezeFormSheet(storeEditor);
+          document.getElementById('store-edit-name').focus();
+        });
+        ['store-edit-close','store-edit-cancel'].forEach(function(id){var button=document.getElementById(id);if(button)button.addEventListener('click',closeStoreEditor);});
+        storeEditor.addEventListener('click',function(event){if(event.target===storeEditor||event.target.hasAttribute('data-store-backdrop'))closeStoreEditor();});
+        document.getElementById('store-edit-save').addEventListener('click',function(){
+          store.name=document.getElementById('store-edit-name').value.trim()||'Kandake Maison & Beauté';
+          store.address=document.getElementById('store-edit-address').value.trim();
+          localStorage.setItem('kandake.store-profile',JSON.stringify(store));paintStore();closeStoreEditor();KD.toast('Identité de la boutique enregistrée');
+        });
+        function onSettingsKeydown(event){if(event.key==='Escape'){if(storeEditor&&!storeEditor.classList.contains('hidden'))closeStoreEditor();if(fxEditor&&!fxEditor.classList.contains('hidden'))closeFxEditor();if(teamEditor&&!teamEditor.classList.contains('hidden'))closeTeamEditor();}}
+        document.addEventListener('keydown',onSettingsKeydown);
         var network=document.getElementById('network-status'); function paintNetwork(){if(network)network.textContent=navigator.onLine?'En ligne · données locales':'Hors ligne · données locales';} window.addEventListener('online',paintNetwork);window.addEventListener('offline',paintNetwork);paintNetwork();
         var productCount=document.getElementById('local-products-count');if(productCount&&KD.getProducts)productCount.textContent=KD.getProducts().length+' référence(s) catalogue enregistrées localement';
         var backup=document.getElementById('backup-export');if(backup)backup.addEventListener('click',function(){var keys=['kandake.products','kandake.sales','kandake.mouvements','kandake.clients','kandake.commandes-fournisseurs','kandake.fx_rate','kandake.store-profile'];var data={format:'kandake-backup-v1',createdAt:new Date().toISOString(),data:{}};keys.forEach(function(k){var v=localStorage.getItem(k);if(v!==null)data.data[k]=v;});var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='kandake-sauvegarde.json';a.click();setTimeout(function(){URL.revokeObjectURL(url);},1000);KD.toast('Copie locale téléchargée · comptes exclus');});
@@ -108,83 +130,63 @@
             .map((w) => w[0]).join('').toUpperCase();
         }
 
-        /* Une ligne par personne : nom, numéro, role et mot de passe. */
+        const teamEditor = document.getElementById('team-editor');
+        let editingUserId = null, teamLock = null;
+        const teamRole = document.getElementById('team-edit-role');
+        teamRole.innerHTML = Object.keys(KD.ROLES).map((key) => '<option value="' + key + '">' + KD.ROLES[key].label + '</option>').join('');
+        function closeTeamEditor() {
+          teamEditor.classList.add('hidden'); teamEditor.classList.remove('flex');
+          if (KD.unfreezeFormSheet) KD.unfreezeFormSheet(teamEditor, teamLock);
+          teamLock = null;
+        }
+        teamEditor.querySelectorAll('[data-form-close], [data-form-cancel]').forEach((button) => button.addEventListener('click', closeTeamEditor));
+        teamEditor.addEventListener('click', (event) => { if (event.target === teamEditor || event.target.hasAttribute('data-form-backdrop')) closeTeamEditor(); });
+        function openTeamEditor(user) {
+          editingUserId = user ? user.id : null;
+          document.getElementById('team-editor-title').textContent = user ? 'Modifier la personne' : 'Ajouter une personne';
+          document.getElementById('team-edit-name').value = user ? user.name : '';
+          document.getElementById('team-edit-phone').value = user ? (user.phone || '') : '';
+          teamRole.value = user ? user.role : 'vendeuse';
+          document.getElementById('team-edit-password').value = '';
+          document.getElementById('team-password-help').textContent = user ? 'Laisser vide pour conserver le mot de passe actuel.' : 'Choisissez un mot de passe d’au moins 4 caractères.';
+          document.getElementById('team-edit-password').required = !user;
+          document.getElementById('team-edit-error').classList.add('hidden');
+          teamEditor.classList.remove('hidden'); teamEditor.classList.add('flex');
+          if (KD.freezeFormSheet) teamLock = KD.freezeFormSheet(teamEditor);
+          document.getElementById('team-edit-name').focus();
+        }
+        document.getElementById('team-edit-save').addEventListener('click', () => {
+          const name = document.getElementById('team-edit-name').value.trim();
+          const phone = document.getElementById('team-edit-phone').value.trim();
+          const role = teamRole.value;
+          const password = document.getElementById('team-edit-password').value;
+          const error = document.getElementById('team-edit-error');
+          const showTeamError = (message) => { error.textContent = message; error.classList.remove('hidden'); };
+          if (!name) { showTeamError('Le nom est requis.'); return; }
+          if (!editingUserId && password.length < 4) { showTeamError('Le mot de passe doit contenir au moins 4 caractères.'); return; }
+          if (editingUserId) {
+            const changes = { name, phone, role };
+            if (password) changes.password = password;
+            if (!KD.updateUser(editingUserId, changes)) { showTeamError('Impossible d’enregistrer ces modifications. Vérifiez les droits et le compte administrateur.'); return; }
+          } else {
+            const users = KD.getUsers();
+            users.push({ id: 'u' + Date.now(), name, phone, role, password, active: true });
+            if (!KD.saveUsers(users)) { showTeamError('Impossible d’enregistrer cette personne.'); return; }
+          }
+          closeTeamEditor(); renderTeam(); KD.toast(editingUserId ? 'Fiche mise à jour' : 'Personne ajoutée');
+        });
         function row(u) {
           const el = document.createElement('div');
-          el.className = 'p-space-sm bg-surface-container-low rounded-lg';
-          el.dataset.user = u.id;
-
-          const options = Object.keys(KD.ROLES).map((key) => {
-            const sel = u.role === key ? ' selected' : '';
-            return '<option value="' + key + '"' + sel + '>' + KD.ROLES[key].label + '</option>';
-          }).join('');
-
-          el.innerHTML =
-            '<div class="flex items-center gap-2.5">' +
-              '<div class="w-8 h-8 shrink-0 rounded-full bg-secondary-container/30 text-secondary font-bold flex items-center justify-center text-xs">' +
-                '<span data-initials>' + initials(u.name) + '</span>' +
-              '</div>' +
-              '<div class="flex-1 min-w-0">' +
-                '<input class="w-full bg-transparent outline-none font-body-md text-body-sm font-semibold text-primary" data-field="name" value="' + String(u.name).replace(/"/g, '&quot;') + '" aria-label="Nom">' +
-                '<input class="w-full bg-transparent outline-none font-body-sm text-[11px] text-on-surface-variant" data-field="phone" value="' + String(u.phone || '').replace(/"/g, '&quot;') + '" aria-label="Numéro">' +
-              '</div>' +
-              '<select class="shrink-0 bg-surface-container-lowest border border-surface-variant rounded-md px-2 py-1.5 font-label-sm text-[11px] font-semibold text-primary outline-none" data-field="role" aria-label="Rôle">' + options + '</select>' +
-            '</div>' +
-            '<div class="flex items-center gap-1.5 mt-2">' +
-              '<div class="flex-1 min-w-0 flex items-center gap-1.5 h-8 px-2 rounded-md bg-surface-container-lowest">' +
-                '<span class="material-symbols-outlined text-[14px] text-on-surface-variant shrink-0">key</span>' +
-                '<input type="password" class="w-full min-w-0 bg-transparent outline-none font-body-sm text-[12px] text-primary" data-field="password" placeholder="' + String(u.password || '').replace(/./g, '•') + '" aria-label="Mot de passe">' +
-              '</div>' +
-              '<button type="button" class="shrink-0 w-8 h-8 flex items-center justify-center text-on-surface-variant active:scale-90" data-act="see-pass" aria-label="Afficher le mot de passe">' +
-                '<span class="material-symbols-outlined text-[15px]">visibility</span>' +
-              '</button>' +
-              '<button type="button" class="shrink-0 w-8 h-8 flex items-center justify-center text-on-surface-variant active:scale-90" data-act="remove" aria-label="Retirer">' +
-                '<span class="material-symbols-outlined text-[15px]">person_remove</span>' +
-              '</button>' +
-            '</div>';
-
-          /* Les modifications sont enregistrees a la validation du champ,
-             pour ne pas ecrire dans le stockage a chaque frappe. */
-          el.querySelectorAll('[data-field]').forEach((input) => {
-            input.addEventListener('change', () => {
-              const field = input.dataset.field;
-              const value = input.value;
-              if (field === 'password') {
-                /* Champ laisse vide : on conserve le mot de passe existant. */
-                if (!value) { input.value = ''; return; }
-                KD.updateUser(u.id, { password: value });
-                input.value = '';
-                input.placeholder = value.replace(/./g, '•');
-                KD.toast('Mot de passe de ' + initials(u.name) + ' mis à jour');
-                return;
-              }
-              if (field === 'name') {
-                KD.updateUser(u.id, { name: value.trim() || u.name });
-                el.querySelector('[data-initials]').textContent = initials(value.trim() || u.name);
-              } else {
-                KD.updateUser(u.id, { [field]: value });
-                if (field === 'role') updateCount();
-              }
-              KD.toast('Fiche mise à jour');
-            });
-          });
-
-          el.querySelector('[data-act="see-pass"]').addEventListener('click', (e) => {
-            const input = el.querySelector('[data-field="password"]');
-            const shown = input.type === 'text';
-            input.type = shown ? 'password' : 'text';
-            e.currentTarget.querySelector('.material-symbols-outlined').textContent = shown ? 'visibility' : 'visibility_off';
-          });
-
-          el.querySelector('[data-act="remove"]').addEventListener('click', () => {
-            const list = KD.getUsers().filter((x) => x.id !== u.id);
-            if (!list.length) { KD.toast('Conserver au moins une personne'); return; }
-            if (!KD.saveUsers(list)) { KD.toast('Conserver un administrateur et votre compte actif'); return; }
-            renderTeam();
-            KD.toast(u.name + ' retiré de l’équipe');
-          });
-
-          return el;
+          el.className = 'p-space-sm bg-surface-container-low rounded-lg flex items-center gap-2.5';
+          const avatar = document.createElement('span'); avatar.className = 'w-9 h-9 rounded-full bg-secondary-container/30 text-secondary font-bold flex items-center justify-center text-xs shrink-0'; avatar.textContent = initials(u.name);
+          const info = document.createElement('div'); info.className = 'flex-1 min-w-0';
+          const name = document.createElement('p'); name.className = 'font-body-md text-body-sm font-semibold text-primary truncate'; name.textContent = u.name;
+          const meta = document.createElement('p'); meta.className = 'font-body-sm text-[11px] text-on-surface-variant truncate'; meta.textContent = (u.phone || 'Téléphone non renseigné') + ' · ' + ((KD.ROLES[u.role] || {}).label || u.role);
+          info.append(name, meta);
+          const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'w-9 h-9 rounded-full bg-surface-container-lowest text-secondary'; edit.setAttribute('aria-label', 'Modifier ' + u.name); edit.innerHTML = '<span class="material-symbols-outlined">edit</span>'; edit.addEventListener('click', () => openTeamEditor(u));
+          const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'w-9 h-9 rounded-full bg-surface-container-lowest text-error'; remove.setAttribute('aria-label', 'Retirer ' + u.name); remove.innerHTML = '<span class="material-symbols-outlined">person_remove</span>';
+          remove.addEventListener('click', () => { const list = KD.getUsers().filter((x) => x.id !== u.id); if (!list.length) { KD.toast('Conserver au moins une personne'); return; } if (!KD.saveUsers(list)) { KD.toast('Conserver un administrateur et votre compte actif'); return; } renderTeam(); KD.toast(u.name + ' retiré de l’équipe'); });
+          el.append(avatar, info, edit, remove); return el;
         }
 
         function updateCount() {
@@ -202,18 +204,17 @@
         }
 
         const teamAdd = document.getElementById('team-add');
-        if (teamAdd) {
-          teamAdd.addEventListener('click', () => {
-            const users = KD.getUsers();
-            const n = users.length + 1;
-            users.push({ id: 'u' + Date.now(), name: 'Nouvelle personne ' + n, role: 'vendeuse', phone: '', password: '1234', active: true });
-            if (!KD.saveUsers(users)) { KD.toast('Impossible d’enregistrer la nouvelle personne'); return; }
-            renderTeam();
-            KD.toast('Personne ajoutée');
-          });
-        }
+        if (teamAdd) teamAdd.addEventListener('click', () => openTeamEditor(null));
 
         if (teamList) renderTeam();
+
+        this.unmount = function () {
+          document.removeEventListener('keydown', onSettingsKeydown);
+          window.removeEventListener('online', paintNetwork); window.removeEventListener('offline', paintNetwork);
+          if (storeEditor && !storeEditor.classList.contains('hidden')) closeStoreEditor();
+          if (fxEditor && !fxEditor.classList.contains('hidden')) closeFxEditor();
+          if (teamEditor && !teamEditor.classList.contains('hidden')) closeTeamEditor();
+        };
 
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
